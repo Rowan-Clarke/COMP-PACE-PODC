@@ -4,14 +4,14 @@
     <title> PODC Chatbot </title>
 </head>
 <body>
-    <h1>PODC Chat Assistant</h1>
+    <div id="chat_container" class="chatbot_design">         <!-- Chatbot container -->
+        <div id="header" class="chat_header">Ask PODC</div>  <!-- Clickable header to show/hide the chatbot -->   
+        <div id="chat_body" class="chat_body">               <!-- Hidden body shown when toggled -->
+            <div id="messages" class="message_bubble"></div> <!-- Scrollable messages container -->  
 
-    <div id="chatbot">
-        <div id="header">Chatbot Assistant</div>    <!-- Sections (Structure) of the HTML page (below).-->
-        <div id="chat_body">
-            <div id="messages"></div>    
-            <div id="input_box">
-                <input type="text" id ="chat_input" placeholder="Type here..."/> <!-- input box-->
+            <!-- Input section -->
+            <div class="input_box">
+                <input id="chat_input" type="text" placeholder="Ask a question..." /> <!-- input box-->
                 <button id="send_btn">Send</button>   <!-- Button to press send, sends message -->
             </div>
         </div>
