@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="design.css"> <!-- referencing to CSS file-->
+    <title> PODC Chatbot </title>
+</head>
+<body>
+    <div id="chat_container" class="chatbot_design">         <!-- Chatbot container -->
+        <div id="header" class="chat_header">Ask PODC</div>  <!-- Clickable header to show/hide the chatbot -->   
+        <div id="chat_body" class="chat_body">               <!-- Hidden body shown when toggled -->
+            <div id="messages" class="message_bubble"></div> <!-- Scrollable messages container -->  
+
+            <!-- Input section -->
+            <div class="input_box">
+                <input id="chat_input" type="text" placeholder="Ask a question..." /> <!-- input box-->
+                <button id="send_btn">Send</button>   <!-- Button to press send, sends message -->
+            </div>
+        </div>
+    </div>
+
+<script src="script.js"></script>    <!-- referencing to JavaScript file-->
+
+</body>
+</html>
