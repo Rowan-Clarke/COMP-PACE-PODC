@@ -16,7 +16,7 @@ with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
     csv_reader = csv.DictReader(csv_file)
     for row in csv_reader:
         # Get the title and content from the row
-        title = row['Title'].strip().replace(" ", "_").replace("|", "").replace("/", "_")
+        title = row['Title'].strip().replace(" ", "_").replace("|", "").replace("/", "_").replace("?", "QuestionMark")
         content = row['Content']
 
         # Define the output text file path
