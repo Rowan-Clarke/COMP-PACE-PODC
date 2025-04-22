@@ -13,7 +13,7 @@ client = openai.OpenAI(api_key=openai_api_key)
 console = Console()
 
 # Vector store ID (from the provided documentation)
-VECTOR_STORE_ID = "vs_6801d393c83c819184cad189cc621a23"
+VECTOR_STORE_ID = "vs_68070872a1208191a8d3f5591d19db91"
 
 def print_markdown(text):
     """Print text as markdown."""

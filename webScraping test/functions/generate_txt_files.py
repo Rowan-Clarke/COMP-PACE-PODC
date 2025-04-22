@@ -4,7 +4,7 @@ import re
 
 # filepath: c:\Users\dylan\COMP3850\COMP-PACE-PODC\webScraping test\generate_txt_files.py
 # Define the input CSV file path
-csv_file_path = "webScraping test\data\scraped_data_pdftest.csv"
+csv_file_path = "webScraping test\data\scraped_data_test3.csv"
 
 # Define the output directory for the text files
 output_dir = "webScraping test\data\output_txt_files"
