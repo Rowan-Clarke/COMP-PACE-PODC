@@ -27,6 +27,8 @@
 }
 
 .message_bubble{
+    display: flex;
+    flex-direction: column;
     flex: 1;
     padding: 10px;
     overflow-y: auto;
@@ -58,18 +60,19 @@
     padding: 8px;
     border-radius: 10px;
     max-width: 80%;
+    word-wrap: break-word;
 }
 
 .user{
-    text-align: right;  /* User's message will be displayed on the right */
+    text-align: left;  /* User's message will be displayed on the right */
     align-self: flex-end;
-    background-color: #e7f7d9;
-    color: #000;
+    background-color: #67c019;
+    color: #ffffff;
 }
 
 .bot{
     text-align: left;    /* Bot response will be displayed on the left */
     align-self: flex-start;
-    background-color: #d3f0f7;
-    color: #000;
+    background-color: #3594d3;
+    color: #ffffff;
 }

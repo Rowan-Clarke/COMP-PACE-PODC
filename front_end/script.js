@@ -21,7 +21,7 @@ function sendMessage(){
     input.value='';    // sets input value as user's input
 
     setTimeout(()=>{
-        appendMessage('bot', 'Bot: '+text);  // Bot response, replace with API Call
+        appendMessage('bot', text);  // Bot response, replace with API Call
                                             // for now this mimics the input as the response, to fix
     }, 400);
 }
