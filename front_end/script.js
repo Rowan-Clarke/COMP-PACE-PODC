@@ -20,10 +20,25 @@ function sendMessage(){
     appendMessage('user', text);   // user input as text
     input.value='';    // sets input value as user's input
 
-    setTimeout(()=>{
-        appendMessage('bot', text);  // Bot response, replace with API Call
-                                            // for now this mimics the input as the response, to fix
-    }, 400);
+    fetch('http://localhost:5000/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.response) {
+            appendMessage('bot', data.response);
+        } else {
+            appendMessage('bot', "Sorry, something went wrong.");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        appendMessage('bot', "Sorry, something went wrong.");
+    });
 }
 
 function appendMessage(sender, text){         // Displays a new message within the chat window
