@@ -8,9 +8,11 @@ const chatbot = document.querySelector('.chatbot_design');  // <-- get the main 
 header.onclick = () => {
     if (body.style.maxHeight && body.style.maxHeight !== "0px") {
         body.style.maxHeight = "0px"; // smoothly close
+        body.style.padding = "0";
         chatbot.classList.remove('open'); // shrink width
     } else {
-        body.style.maxHeight = "450px"; // smoothly open
+        body.style.maxHeight = "600px"; // smoothly open
+        body.style.padding = "10px";
         chatbot.classList.add('open'); // expand width
     }
 };
@@ -79,7 +81,7 @@ function appendMessage(sender, text, citations = []) {
                 citationItem.className = 'citation-item';
                 // Clean up filename by removing file extension
                 const cleanFileName = citation.filename.replace(/\.[^/.]+$/, "");
-                citationItem.textContent = `📚 ${cleanFileName}`;
+                citationItem.textContent =  cleanFileName;;
                 citationsList.appendChild(citationItem);
             });
             

@@ -1,15 +1,14 @@
 .chatbot_design{
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 250px; /* smaller width when closed */
+    bottom: 20px;
+    right: 20px;
+    width: 300px; /* smaller width when closed */
     font-family: Arial;
-    z-index: 9999;
-    transition: width 0.5s ease; /* add width transition */
+    background: white;
     border: 1px solid #ccc;
     border-radius: 15px;
     overflow: hidden;
-    background-color: white;
+    transition: all 0.5s ease; /* add transition */
 }
 
 .chatbot_design.open{
@@ -36,14 +35,9 @@
 .chat_body{
     background: #ffffff;
     max-height: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    overflow-y: auto;
-    font-size: 16px;
-    height: 600px;  /* Increased from 400px */
-    background-color: #ffffff;
-    line-height: 1.5;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+    padding: 0;
 }
 
 .message_bubble{
@@ -52,10 +46,13 @@
     flex: 1;
     padding: 10px;
     overflow-y: auto;
+    overflow-x: hidden; /* prevent sideways scroll */
     font-size: 16px;
-    height: 500px;  /* Increased from 200px */
+    height: 500px; 
     background-color: #ffffff;
     line-height: 1.5;
+    word-wrap: break-word; /* break long words properly */
+    white-space: normal;   /* allow wrapping text */
 }
 
 .message_bubble::-webkit-scrollbar {
@@ -112,6 +109,7 @@
     border-radius: 10px;
     max-width: 90%;
     word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .user{
@@ -137,6 +135,9 @@
     background-color: #f5f5f5;
     border-radius: 8px;
     padding: 10px;
+    max-width: 100%;
+    overflow-x: hidden;
+    word-wrap: break-word;
 }
 
 .citation-header {
@@ -150,13 +151,17 @@
     color: #555;
     margin: 4px 0;
     font-size: 0.85em;
-    padding: 4px 8px;
+    padding: 8px 10px;
     background-color: #fff;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    display: inline-block;
-    margin-right: 8px;
-    margin-bottom: 8px;
+    display: block;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: left;
 }
 
 .response-text {
