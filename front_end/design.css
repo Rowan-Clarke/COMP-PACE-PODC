@@ -41,8 +41,7 @@
     padding: 10px;
     overflow-y: auto;
     font-size: 16px;
-    height: 400px;
-    height: 200px;
+    height: 600px;  /* Increased from 400px */
     background-color: #ffffff;
     line-height: 1.5;
 }
@@ -54,7 +53,7 @@
     padding: 10px;
     overflow-y: auto;
     font-size: 16px;
-    height: 200px;
+    height: 500px;  /* Increased from 200px */
     background-color: #ffffff;
     line-height: 1.5;
 }
@@ -70,35 +69,40 @@
 
 .input_box{
     display: flex;
+    justify-content: space-between;  /* This will push the button to the right */
+    align-items: center;  /* This will vertically center the input and button */
     border-top: 1px solid #ccc;
-    background: white;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    /* border-top: 1px solid #ccc; */
-    padding: 10px;
     background: rgb(235, 235, 235);
+    padding: 10px;
     border-radius: 15px;
-    overflow: hidden;
-    /* gap: 15px; */
     margin: 8px;
+    gap: 10px;  /* Add space between input and button */
 }
 
 .input_box input{
+    flex: 1;  /* This makes the input field take up all available space */
     border: none;
     outline: none;
     background: transparent;
     border-radius: 15px;
- 
- }
+    padding: 8px;  /* Add some padding for better text visibility */
+    min-height: 40px;  /* Make input box taller */
+}
+
 .input_box button{
-    padding: 5px 15px;
-    padding: 15px;
+    padding: 12px 20px;  /* Adjusted padding */
     background-color: #40b2cf;
     color: #ffffff;
     border: none;
     cursor: pointer;
     border-radius: 10px;
     white-space: nowrap;
+    font-weight: bold;  /* Make the text bold */
+    transition: background-color 0.3s ease;  /* Smooth hover effect */
+}
+
+.input_box button:hover {
+    background-color: #3599b3;  /* Slightly darker shade for hover effect */
 }
 
 .msg{

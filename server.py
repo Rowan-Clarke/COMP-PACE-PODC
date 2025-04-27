@@ -21,7 +21,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("No API key found. Please check your .env file")
 else:
-    print(f"API key loaded (first 8 chars): {api_key[:8]}...")
+    print(f"API key loaded")
 
 client = OpenAI(api_key=api_key)
 
