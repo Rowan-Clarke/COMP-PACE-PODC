@@ -39,6 +39,7 @@ def chat_with_file_search():
             # Create a response with file search tool
             response = client.responses.create(
                 model="gpt-4o-mini",
+                instructions ="You are a helpful AI assistant for Parents of Deaf Children (PODC). Provide accurate, supportive, and accessible information, using the file search tool to find relevant information, and citing information when the file search tool is called.",
                 input=user_input,
                 previous_response_id=previous_response_id,
                 tools=[{

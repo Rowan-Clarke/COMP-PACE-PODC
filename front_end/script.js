@@ -24,8 +24,8 @@ function sendMessage(){
     const text=input.value.trim();
     if (!text) return;
 
-    appendMessage('user', text);   // user input as text
-    input.value='';    // sets input value as user's input
+    appendMessage('user', text);
+    input.value='';
 
     fetch('http://localhost:5000/chat', {
         method: 'POST',
@@ -37,7 +37,7 @@ function sendMessage(){
     .then(response => response.json())
     .then(data => {
         if (data.response) {
-            appendMessage('bot', data.response);
+            appendMessage('bot', data.response, data.citations);
         } else {
             appendMessage('bot', "Sorry, something went wrong.");
         }
@@ -48,10 +48,36 @@ function sendMessage(){
     });
 }
 
-function appendMessage(sender, text){         // Displays a new message within the chat window
-    const message=document.createElement('div');
-    message.className=`msg ${sender}`;
-    message.innerHTML = marked.parse(text);
-    msg.appendChild(message);   // Message is added into the chat window.
-    msg.scrollTop=msg.scrollHeight;  // Automatically scrolls to the bottom to display most recent message.
+function appendMessage(sender, text, citations = []){
+    const message = document.createElement('div');
+    message.className = `msg ${sender}`;
+    
+    // Add the main response text
+    const responseText = document.createElement('div');
+    responseText.className = 'response-text';
+    responseText.innerHTML = marked.parse(text);
+    message.appendChild(responseText);
+    
+    // Add citations if they exist
+    if (citations && citations.length > 0) {
+        const citationsList = document.createElement('div');
+        citationsList.className = 'citations';
+        
+        const citationHeader = document.createElement('div');
+        citationHeader.className = 'citation-header';
+        citationHeader.textContent = 'Sources:';
+        citationsList.appendChild(citationHeader);
+        
+        citations.forEach(citation => {
+            const citationItem = document.createElement('div');
+            citationItem.className = 'citation-item';
+            citationItem.textContent = `📄 ${citation.filename}`;
+            citationsList.appendChild(citationItem);
+        });
+        
+        message.appendChild(citationsList);
+    }
+    
+    msg.appendChild(message);
+    msg.scrollTop = msg.scrollHeight;
 }
