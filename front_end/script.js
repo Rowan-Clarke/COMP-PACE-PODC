@@ -48,7 +48,7 @@ function sendMessage(){
     });
 }
 
-function appendMessage(sender, text, citations = []){
+function appendMessage(sender, text, citations = []) {
     const message = document.createElement('div');
     message.className = `msg ${sender}`;
     
@@ -58,24 +58,33 @@ function appendMessage(sender, text, citations = []){
     responseText.innerHTML = marked.parse(text);
     message.appendChild(responseText);
     
-    // Add citations if they exist
+    // Add unique citations if they exist
     if (citations && citations.length > 0) {
-        const citationsList = document.createElement('div');
-        citationsList.className = 'citations';
+        // Remove duplicate citations
+        const uniqueCitations = citations.filter((citation, index, self) =>
+            index === self.findIndex((c) => c.filename === citation.filename)
+        );
         
-        const citationHeader = document.createElement('div');
-        citationHeader.className = 'citation-header';
-        citationHeader.textContent = 'Sources:';
-        citationsList.appendChild(citationHeader);
-        
-        citations.forEach(citation => {
-            const citationItem = document.createElement('div');
-            citationItem.className = 'citation-item';
-            citationItem.textContent = `📄 ${citation.filename}`;
-            citationsList.appendChild(citationItem);
-        });
-        
-        message.appendChild(citationsList);
+        if (uniqueCitations.length > 0) {
+            const citationsList = document.createElement('div');
+            citationsList.className = 'citations';
+            
+            const citationHeader = document.createElement('div');
+            citationHeader.className = 'citation-header';
+            citationHeader.textContent = 'Sources:';
+            citationsList.appendChild(citationHeader);
+            
+            uniqueCitations.forEach(citation => {
+                const citationItem = document.createElement('div');
+                citationItem.className = 'citation-item';
+                // Clean up filename by removing file extension
+                const cleanFileName = citation.filename.replace(/\.[^/.]+$/, "");
+                citationItem.textContent = `📚 ${cleanFileName}`;
+                citationsList.appendChild(citationItem);
+            });
+            
+            message.appendChild(citationsList);
+        }
     }
     
     msg.appendChild(message);
