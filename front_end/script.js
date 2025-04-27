@@ -44,7 +44,7 @@ function sendMessage(){
 function appendMessage(sender, text){         // Displays a new message within the chat window
     const message=document.createElement('div');
     message.className=`msg ${sender}`;
-    message.textContent=text;
+    message.innerHTML = marked.parse(text);
     msg.appendChild(message);   // Message is added into the chat window.
     msg.scrollTop=msg.scrollHeight;  // Automatically scrolls to the bottom to display most recent message.
 }
