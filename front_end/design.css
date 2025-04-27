@@ -6,6 +6,10 @@
     font-family: Arial;
     z-index: 9999;
     transition: width 0.5s ease; /* add width transition */
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    overflow: hidden;
+    background-color: white;
 }
 
 .chatbot_design.open{
@@ -25,11 +29,12 @@
     font-size: 16px;
     font-weight: bold;
     transition: all 0.5s ease; /* smoother transition */
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
 .chat_body{
     background: #a6d0e5;
-    border: 1px solid #ccc;
     max-height: 0;
     display: flex;
     flex-direction: column;
@@ -62,12 +67,18 @@
 .input_box{
     display: flex;
     border-top: 1px solid #ccc;
+    background: white;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    overflow: hidden;
 }
 
 .input_box input{
     flex: 1;
     padding: 10px;
     border: none;
+    outline: none;
+    background: transparent;
 }
 
 .input_box button{
