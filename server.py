@@ -2,10 +2,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-# Load environment variables from .env
-load_dotenv()
+# Load environment variables from .env with debugging
+env_path = find_dotenv()
+if env_path:
+    print(f"Found .env file at: {env_path}")
+    load_dotenv(env_path)
+else:
+    print("No .env file found!")
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -13,6 +18,11 @@ CORS(app)
 
 # Set up OpenAI client using the key from environment
 api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("No API key found. Please check your .env file")
+else:
+    print(f"API key loaded (first 8 chars): {api_key[:8]}...")
+
 client = OpenAI(api_key=api_key)
 
 @app.route('/chat', methods=['POST'])
