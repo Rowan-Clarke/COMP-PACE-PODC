@@ -7,7 +7,7 @@ pip install -r requirements.txt
 
 ### 2. Configure API Key
 - Create a `.env` file.
-- Paste your personal OpenAI API key for now:
+- Paste OpenAI API key:
 
 OPENAI_API_KEY=sk-proj-xxxxxxxxxx
 
