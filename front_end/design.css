@@ -34,7 +34,7 @@
 }
 
 .chat_body{
-    background: #a6d0e5;
+    background: #ffffff;
     max-height: 0;
     display: flex;
     flex-direction: column;
@@ -50,7 +50,7 @@
     padding: 10px;
     overflow-y: auto;
     font-size: 16px;
-    height: 400px;
+    height: 200px;
     background-color: #ffffff;
     line-height: 1.5;
 }
@@ -66,11 +66,13 @@
 
 .input_box{
     display: flex;
-    border-top: 1px solid #ccc;
-    background: white;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
+    /* border-top: 1px solid #ccc; */
+    padding: 10px;
+    background: rgb(235, 235, 235);
+    border-radius: 15px;
     overflow: hidden;
+    /* gap: 15px; */
+    margin: 8px;
 }
 
 .input_box input{
@@ -79,13 +81,18 @@
     border: none;
     outline: none;
     background: transparent;
+    border-radius: 15px;
+
 }
 
 .input_box button{
-    padding: 5px 15px;
+    padding: 15px;
     background-color: #40b2cf;
+    color: #ffffff;
     border: none;
     cursor: pointer;
+    border-radius: 10px;
+    white-space: nowrap;
 }
 
 .msg{
