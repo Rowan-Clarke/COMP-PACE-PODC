@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 OPENAI_API_KEY=sk-proj-xxxxxxxxxx
 
-### 3. Run the Backend Server
+### 3. Run the Backend Server in Terminal
 python server.py
 
 ### 4. Open the Front-End

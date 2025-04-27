@@ -3,12 +3,15 @@ const body=document.getElementById('chat_body');
 const sendBtn=document.getElementById('send_btn');
 const input =document.getElementById('chat_input');  // css elements implemented into JavaScript
 const msg=document.getElementById('messages');
+const chatbot = document.querySelector('.chatbot_design');  // <-- get the main container
 
 header.onclick = () => {
     if (body.style.maxHeight && body.style.maxHeight !== "0px") {
         body.style.maxHeight = "0px"; // smoothly close
+        chatbot.classList.remove('open'); // shrink width
     } else {
         body.style.maxHeight = "450px"; // smoothly open
+        chatbot.classList.add('open'); // expand width
     }
 };
 

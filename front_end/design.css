@@ -2,9 +2,14 @@
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 450px;
+    width: 250px; /* smaller width when closed */
     font-family: Arial;
     z-index: 9999;
+    transition: width 0.5s ease; /* add width transition */
+}
+
+.chatbot_design.open{
+    width: 450px; /* expand width when open */
 }
 
 .chat_header{
@@ -17,8 +22,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
+    transition: all 0.5s ease; /* smoother transition */
 }
 
 .chat_body{
@@ -29,7 +35,7 @@
     flex-direction: column;
     height: 500px;
     overflow: hidden;
-    transition: max-height 0.5s
+    transition: max-height 0.5s ease;
 }
 
 .message_bubble{
