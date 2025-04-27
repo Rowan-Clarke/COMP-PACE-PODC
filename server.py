@@ -24,15 +24,17 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
-        response = client.chat.completions.create(
+        response = client.responses.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful AI assistant for Parents of Deaf Children (PODC). Provide accurate, supportive, and accessible information."},
-                {"role": "user", "content": user_message}
-            ]
+            input=user_message,
+            tools=[{
+                "type": "file_search",
+                "vector_store_ids": ["vs_68070872a1208191a8d3f5591d19db91"]
+            }],
+            include=["file_search_call.results"]
         )
 
-        reply = response.choices[0].message.content
+        reply = response.output_text
         return jsonify({'response': reply})
 
     except Exception as e:
