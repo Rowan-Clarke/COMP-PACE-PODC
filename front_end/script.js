@@ -4,8 +4,12 @@ const sendBtn=document.getElementById('send_btn');
 const input =document.getElementById('chat_input');  // css elements implemented into JavaScript
 const msg=document.getElementById('messages');
 
-header.onclick=()=>{
-    body.style.display=body.style.display==='none' ? 'flex': 'none';  // Opens chat when clicked on.
+header.onclick = () => {
+    if (body.style.maxHeight && body.style.maxHeight !== "0px") {
+        body.style.maxHeight = "0px"; // smoothly close
+    } else {
+        body.style.maxHeight = "450px"; // smoothly open
+    }
 };
 
 sendBtn.onclick =sendMessage;
