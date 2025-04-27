@@ -56,23 +56,24 @@
 }
 
 .msg{
-    margin: 5px 10px;
-    padding: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin: 10px;
+    padding: 12px 18px;
     border-radius: 10px;
     max-width: 80%;
     word-wrap: break-word;
 }
 
 .user{
-    text-align: left;  /* User's message will be displayed on the right */
+    text-align: right;  /* User's message will be displayed on the right */
     align-self: flex-end;
-    background-color: #67c019;
-    color: #ffffff;
+    background-color: #dfffd9;
+    color: #000000;
 }
 
 .bot{
     text-align: left;    /* Bot response will be displayed on the left */
     align-self: flex-start;
-    background-color: #3594d3;
-    color: #ffffff;
+    background-color: #e3f7fb;
+    color: #333333;
 }
