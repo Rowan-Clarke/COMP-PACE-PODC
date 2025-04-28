@@ -115,7 +115,7 @@
 }
 
 .user{
-    text-align: right;  /* User's message will be displayed on the right */
+    text-align: left;  /* User's message will be displayed on the right */
     align-self: flex-end;
     background-color: #dfffd9;
     color: #000000;
