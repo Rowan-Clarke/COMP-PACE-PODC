@@ -30,7 +30,7 @@
     transition: all 0.5s ease; /* smoother transition */
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    gap: 10px;
+    gap: 150px;
 }
 
 .chat_body{
