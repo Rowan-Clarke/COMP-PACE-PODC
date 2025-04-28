@@ -5,6 +5,8 @@ const input =document.getElementById('chat_input');  // css elements implemented
 const msg=document.getElementById('messages');
 const chatbot = document.querySelector('.chatbot_design');  // <-- get the main container
 
+let introMessage=false;
+
 header.onclick = () => {
     if (body.style.maxHeight && body.style.maxHeight !== "0px") {
         body.style.maxHeight = "0px"; // smoothly close
@@ -14,6 +16,11 @@ header.onclick = () => {
         body.style.maxHeight = "600px"; // smoothly open
         body.style.padding = "10px";
         chatbot.classList.add('open'); // expand width
+
+        if (!introMessage){
+            appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :)");
+            introMessage=true;
+        }
     }
 };
 
