@@ -30,6 +30,7 @@
     transition: all 0.5s ease; /* smoother transition */
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+    gap: 10px;
 }
 
 .chat_body{
@@ -63,6 +64,7 @@
     background: #ccc;
     border-radius: 3px;
 }
+
 
 .input_box{
     display: flex;

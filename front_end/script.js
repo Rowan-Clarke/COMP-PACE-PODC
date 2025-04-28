@@ -4,6 +4,7 @@ const sendBtn=document.getElementById('send_btn');
 const input =document.getElementById('chat_input');  // css elements implemented into JavaScript
 const msg=document.getElementById('messages');
 const chatbot = document.querySelector('.chatbot_design');  // <-- get the main container
+const arrow = document.getElementById('arrow');
 
 let introMessage=false;
 
@@ -12,10 +13,12 @@ header.onclick = () => {
         body.style.maxHeight = "0px"; // smoothly close
         body.style.padding = "0";
         chatbot.classList.remove('open'); // shrink width
+        arrow.style.transform="rotate(0deg)";
     } else {
         body.style.maxHeight = "600px"; // smoothly open
         body.style.padding = "10px";
         chatbot.classList.add('open'); // expand width
+        arrow.style.transform="rotate(180deg)";
 
         if (!introMessage){
             appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :)");
