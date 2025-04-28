@@ -14,7 +14,17 @@ else:
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/chat": {
+        "origins": [
+            "http://localhost:5000",
+            "https://podc-chatbot-frontend-v1.onrender.com",
+            "https://*.onrender.com"
+        ],
+        "methods": ["POST"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Set up OpenAI client using the key from environment
 api_key = os.getenv("OPENAI_API_KEY")

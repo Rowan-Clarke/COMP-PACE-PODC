@@ -39,7 +39,8 @@ function sendMessage(){
     appendMessage('user', text);
     input.value='';
 
-    fetch('http://localhost:5000/chat', {
+    // Update to use Render backend URL
+    fetch('https://podc-chatbot-backend-v1.onrender.com/chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
