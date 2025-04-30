@@ -40,6 +40,10 @@ function sendMessage(){
     input.value='';
 
     // Update to use Render backend URL
+    // Show loading spinner
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+
     fetch('https://podc-chatbot-backend-v1.onrender.com/chat', {
         method: 'POST',
         headers: {
@@ -49,6 +53,9 @@ function sendMessage(){
     })
     .then(response => response.json())
     .then(data => {
+        // Hide loading spinner
+        loading.style.display = 'none';
+
         if (data.response) {
             appendMessage('bot', data.response, data.citations);
         } else {
@@ -57,6 +64,9 @@ function sendMessage(){
     })
     .catch(error => {
         console.error('Error:', error);
+        // Hide loading spinner
+        loading.style.display = 'none';
+        
         appendMessage('bot', "Sorry, something went wrong.");
     });
 }
