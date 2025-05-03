@@ -50,7 +50,7 @@ def chat():
             input=user_message,
             tools=[{
                 "type": "file_search",
-                "vector_store_ids": ["vs_68070872a1208191a8d3f5591d19db91"]
+                "vector_store_ids": ["vs_6815cd852cd8819192d3e761547c08b5"]
             }],
             include=["file_search_call.results"]  # Include file search results
         )
