@@ -44,7 +44,7 @@ function sendMessage(){
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
 
-    fetch('https://podc-chatbot-backend-v1.onrender.com/chat', {
+    fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

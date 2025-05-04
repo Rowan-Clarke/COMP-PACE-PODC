@@ -18,7 +18,7 @@ CORS(app, resources={
     r"/chat": {
         "origins": [
             "http://localhost:5000",
-            "https://podc-chatbot-frontend-v1.onrender.com",
+            "https://podc-chatbot-frontend-v2.onrender.com",
             "https://*.onrender.com"
         ],
         "methods": ["POST"],
