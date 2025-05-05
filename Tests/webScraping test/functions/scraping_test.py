@@ -21,6 +21,9 @@ from contextlib import asynccontextmanager
 import time
 import re
 import ssl
+import tempfile
+import shutil
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -41,7 +44,11 @@ class WebScraper:
     def __init__(self):
         self.session: Optional[aiohttp.ClientSession] = None
         self.driver: Optional[webdriver.Chrome] = None
-        
+        # Update downloads directory path
+        self.downloads_dir = Path("Tests/webScraping test/data/Downloads")
+        self.downloads_dir.mkdir(parents=True, exist_ok=True)
+        self.temp_dir = Path(tempfile.mkdtemp())
+
     async def __aenter__(self):
         # Initialize resources with SSL context
         ssl_context = ssl.create_default_context()
@@ -58,6 +65,15 @@ class WebScraper:
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
         
+        # Configure download behavior
+        chrome_options.add_experimental_option('prefs', {
+            'download.default_directory': str(self.downloads_dir.absolute()),
+            'download.prompt_for_download': False,
+            'download.directory_upgrade': True,
+            'plugins.always_open_pdf_externally': True,
+            'safebrowsing.enabled': True
+        })
+        
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         return self
         
@@ -67,6 +83,9 @@ class WebScraper:
             await self.session.close()
         if self.driver:
             self.driver.quit()
+        # Clean up temp directory
+        if self.temp_dir.exists():
+            shutil.rmtree(self.temp_dir)
 
     @lru_cache(maxsize=100)
     def get_robots_parser(self, domain: str) -> RobotFileParser:
@@ -94,42 +113,91 @@ class WebScraper:
             return None
 
     async def scrape_pdf(self, url: str, title: str) -> Dict[str, Any]:
+        """Enhanced PDF scraping with download handling"""
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/pdf,*/*',
+            'Connection': 'keep-alive'
+        }
+        
         try:
-            async with self.session.get(url, timeout=60) as response:
-                if response.status != 200:
-                    return self._create_error_response(title, f"HTTP Error {response.status}")
-                
-                content = await response.read()
-                
-                # Verify PDF content
-                if not content.startswith(b'%PDF'):
-                    return self._create_error_response(title, "Invalid PDF format")
-                
-                try:
-                    pdf_content = io.BytesIO(content)
-                    reader = PdfReader(pdf_content)
+            # First try direct aiohttp download
+            async with self.session.get(url, headers=headers, timeout=60) as response:
+                if response.status == 200:
+                    content = await response.read()
                     
-                    text_content = []
-                    for page in reader.pages:
-                        extracted_text = page.extract_text()
-                        if extracted_text:
-                            text_content.append(extracted_text.strip())
-                    
-                    if not text_content:
-                        return self._create_error_response(title, "No text content extracted")
-                    
-                    return {
-                        "Title": title,
-                        "Content": "\n".join(text_content)[:5000],
-                        "Accessible": True,
-                        "Type": "PDF"
-                    }
-                except Exception as e:
-                    return self._create_error_response(title, f"PDF parsing error: {str(e)}")
+                    # Check if it's a PDF
+                    if content.startswith(b'%PDF'):
+                        return await self._process_pdf_content(content, title)
+                
+                # If not successful, try with requests and Selenium
+                return await self._try_alternative_pdf_download(url, title)
                     
         except Exception as e:
-            logger.error(f"Error processing PDF {url}: {str(e)}")
+            logger.error(f"Error in primary PDF fetch for {url}: {str(e)}")
+            return await self._try_alternative_pdf_download(url, title)
+
+    async def _try_alternative_pdf_download(self, url: str, title: str) -> Dict[str, Any]:
+        """Try alternative methods to get PDF content"""
+        try:
+            # Try using requests first
+            response = requests.get(url, stream=True, timeout=30)
+            if response.status_code == 200:
+                content = response.content
+                if content.startswith(b'%PDF'):
+                    return await self._process_pdf_content(content, title)
+            
+            # If requests fails, try Selenium
+            self.driver.get(url)
+            await asyncio.sleep(3)  # Wait for potential download
+            
+            # Check downloads directory using class property
+            pdf_files = list(self.downloads_dir.glob("*.pdf"))
+            
+            # Sort by modification time to get the most recent
+            if pdf_files:
+                newest_pdf = max(pdf_files, key=lambda x: x.stat().st_mtime)
+                # Only process if modified in last 10 seconds
+                if time.time() - newest_pdf.stat().st_mtime < 10:
+                    # Copy to temp directory
+                    temp_pdf = self.temp_dir / newest_pdf.name
+                    shutil.copy2(newest_pdf, temp_pdf)
+                    
+                    # Read and process PDF
+                    with open(temp_pdf, 'rb') as f:
+                        return await self._process_pdf_content(f.read(), title)
+            
+            return self._create_error_response(title, "Failed to download PDF")
+            
+        except Exception as e:
+            logger.error(f"Error in alternative PDF download for {url}: {str(e)}")
             return self._create_error_response(title, str(e))
+
+    async def _process_pdf_content(self, content: bytes, title: str) -> Dict[str, Any]:
+        """Process PDF content and extract text"""
+        try:
+            pdf_content = io.BytesIO(content)
+            reader = PdfReader(pdf_content)
+            
+            text_content = []
+            for page in reader.pages:
+                extracted_text = page.extract_text()
+                if extracted_text:
+                    text_content.append(extracted_text.strip())
+            
+            if not text_content:
+                return self._create_error_response(title, "No text content extracted")
+            
+            return {
+                "Title": title,
+                "Content": "\n".join(text_content)[:5000],
+                "Accessible": True,
+                "Type": "PDF"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error processing PDF content for {title}: {str(e)}")
+            return self._create_error_response(title, f"PDF processing error: {str(e)}")
 
     async def scrape_html(self, url: str, title: str) -> Dict[str, str]:
         try:
@@ -160,7 +228,8 @@ class WebScraper:
                 ".entry-content",
                 "[role='main']",
                 "#content",
-                ".main"
+                ".main",
+                "content-type-content"
             ]
             
             content = None

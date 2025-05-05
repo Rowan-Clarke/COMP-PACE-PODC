@@ -88,3 +88,21 @@ ent%20guideline.pdf: ClientSession._request() got an unexpected keyword argument
 2025-05-05 21:03:07,620 - INFO - Driver [C:\Users\dylan\.wdm\drivers\chromedriver\win64\135.0.7049.114\chromedriver-win32/chromedriver.exe] found in cache
 2025-05-05 21:03:35,072 - INFO - Scraping completed. Saved 37 results to Tests/webScraping test/data/scraped_data.csv
 2025-05-05 21:03:37,351 - INFO - Total execution time: 32.07 seconds
+2025-05-05 21:15:30,512 - INFO - ====== WebDriver manager ======
+2025-05-05 21:15:32,042 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:15:32,216 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:15:32,353 - INFO - Driver [C:\Users\dylan\.wdm\drivers\chromedriver\win64\135.0.7049.114\chromedriver-win32/chromedriver.exe] found in cache
+2025-05-05 21:16:31,815 - INFO - Scraping completed. Saved 37 results to Tests/webScraping test/data/scraped_data.csv
+2025-05-05 21:16:34,181 - INFO - Total execution time: 64.22 seconds
+2025-05-05 21:20:25,062 - INFO - ====== WebDriver manager ======
+2025-05-05 21:20:26,640 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:20:26,792 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:20:26,929 - INFO - Driver [C:\Users\dylan\.wdm\drivers\chromedriver\win64\135.0.7049.114\chromedriver-win32/chromedriver.exe] found in cache
+2025-05-05 21:21:23,608 - INFO - Scraping completed. Saved 37 results to Tests/webScraping test/data/scraped_data.csv
+2025-05-05 21:21:25,934 - INFO - Total execution time: 61.44 seconds
+2025-05-05 21:25:58,753 - INFO - ====== WebDriver manager ======
+2025-05-05 21:26:00,336 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:26:00,737 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-05 21:26:00,874 - INFO - Driver [C:\Users\dylan\.wdm\drivers\chromedriver\win64\135.0.7049.114\chromedriver-win32/chromedriver.exe] found in cache
+2025-05-05 21:27:10,541 - INFO - Scraping completed. Saved 37 results to Tests/webScraping test/data/scraped_data.csv
+2025-05-05 21:27:13,044 - INFO - Total execution time: 74.87 seconds
