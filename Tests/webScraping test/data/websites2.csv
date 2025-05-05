@@ -1,15 +1,14 @@
-Name,API?,"Type (HTML/XML, Javascript, PDF)",Robots.txt permission?,Crawl-Delay?,URL,CATEGORY
-Describing Hearing Loss,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/your-childs-hearing/hearing-loss/describing-hearing-loss/,Education
-Describing the severity of a hearing loss,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/your-childs-hearing/hearing-loss/describing-the-severity-of-a-hearing-loss/,Education
-What do hearing aids do?,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/your-childs-hearing/hearing-aids/what-do-hearing-aids-do/,Hearing Aids
-Sound Waves,NO,PDF,YES,N/A,https://www.aussiedeafkids.org.au/wp-content/uploads/2024/12/Sound-Waves-section-5.pdf,Education
-Classroom tips,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/education/information-for-your-childs-teacher/classroom-tips/,Teacher resources
-How listener friendly is your classroom?,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/education/information-for-your-childs-teacher/how-listener-friendly-is-your-classroom/,Teacher resources
-A quick guide to communication,NO,HTML,YES,N/A,https://www.aussiedeafkids.org.au/resources/language-and-communication/getting-started/a-quick-guide-to-communication/,Education
-"NDIS providers: quality, respect and safety",NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/ndis-providers-quality-respect-safety,Support
-The NDIS: reasonable and necessary supports,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/the-ndis-reasonable-and-necessary-supports,Support
-Support for children with disability: not funded by the NDIS,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/child-disability-support-non-NDIS,Education
-NDIS providers: registered and unregistered,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/ndis-providers-registered-unregistered,Support
-NDIS terminology: a guide,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/ndis-terminology-a-guide,Education
-The NDIS and children: FAQS,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/ndis-faqs,Education
-Complaints about NDIS providers,NO,HTML,YES,N/A,https://raisingchildren.net.au/disability/ndis/about-ndis/complaints-about-ndis-providers,Support
+Name,URL,"Type (HTML/XML, Javascript, PDF)",Robots.txt permission?,Accessible?
+Describing Hearing Loss,https://www.aussiedeafkids.org.au/resources/your-childs-hearing/hearing-loss/describing-hearing-loss/,,,
+CRPD General Comment No. 7,https://digitallibrary.un.org/record/1641694/files/CRPD_C_GC_7-EN.pdf,,,
+Disability Discrimination Act 1992,https://www.legislation.gov.au/Details/C2021C00375/Download,,,
+Australia's Disability Strategy 2021-2031,"https://www.disabilitygateway.gov.au/sites/default/files/documents/2021-12/australias-disability-strategy-2021
+-2031.pdf",,,
+NDIS Act 2013,https://www.legislation.gov.au/Details/C2023C00397/Download,,,
+NDIS Quality and Safeguarding Framework,"https://www.ndiscommission.gov.au/sites/default/files/documents/2019-05/ndis-quality-and-safeguarding-fram 
+ework-0.pdf",,,
+Disability Standards for Education 2005,"https://www.education.gov.au/disability-standards-education-2005/resources/disability-standards-education-2 
+005",,,
+NDIS Access Request Form,https://www.ndis.gov.au/media/2323/download,,,
+Best Practices in Family-Centred EI - Aurora School,https://www.auroraschool.vic.edu.au/wp-content/uploads/2023/10/Best_Practices_in_Family_Centered_Early _Intervention_ENG.pdf,,,
+NDIS and Children with Hearing Loss - ADK,https://www.aussiedeafkids.org.au/user-assets/NDIS%20and%20children%20with%20hearing%20loss.pdf,,,
