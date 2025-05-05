@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 import requests
 from PyPDF2 import PdfReader
 import os
+from urllib.parse import urlparse, urljoin
+from urllib.robotparser import RobotFileParser
 
 # Load URLs from a CSV file
 def load_urls(file_path):
@@ -54,27 +56,127 @@ def scrape_pdf(url, title):
     else:
         return {"Title": title, "Content": "Failed to download PDF"}
 
+# Function to check robots.txt
+def check_robots_permission(url):
+    try:
+        # Parse the URL to get the base domain
+        parsed_url = urlparse(url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        robots_url = urljoin(base_url, "/robots.txt")
+        
+        # Initialize and read robots.txt
+        rp = RobotFileParser()
+        rp.set_url(robots_url)
+        rp.read()
+        
+        # Check if scraping is allowed for this path
+        can_fetch = rp.can_fetch("*", url)
+        return can_fetch
+    except Exception as e:
+        print(f"Error checking robots.txt for {url}: {e}")
+        return False
+
+def detect_website_type(url):
+    """Determine the type of website based on URL and content"""
+    if url.lower().endswith('.pdf'):
+        return 'PDF'
+    elif url.lower().endswith(('.html', '.htm')) or not url.lower().split('?')[0].split('/')[-1].endswith(('.', '/')):
+        return 'HTML'
+    else:
+        return 'unknown'
+
+def check_accessibility(url, content):
+    """Check if the website is accessible based on content"""
+    error_phrases = ['404', 'not found', 'no content here', 'missing', 'error', 'page not found']
+    
+    try:
+        response = requests.head(url, timeout=10)
+        if response.status_code != 200:
+            return 'NO'
+            
+        if isinstance(content, str):
+            content_lower = content.lower()
+            if any(phrase in content_lower for phrase in error_phrases):
+                return 'NO'
+        return 'YES'
+    except:
+        return 'NO'
+
+def analyze_and_update_csv(input_file):
+    """Analyze URLs and update CSV with additional information"""
+    df = pd.read_csv(input_file)
+    
+    # Add new columns if they don't exist
+    if 'Type (HTML/XML, Javascript, PDF)' not in df.columns:
+        df['Type (HTML/XML, Javascript, PDF)'] = df['URL'].apply(detect_website_type)
+    
+    if 'Robots.txt permission?' not in df.columns:
+        df['Robots.txt permission?'] = df['URL'].apply(lambda x: 'YES' if check_robots_permission(x) else 'NO')
+    
+    if 'Accessible?' not in df.columns:
+        df['Accessible?'] = 'Unknown'  # Will be updated during scraping
+    
+    # Save updated CSV
+    df.to_csv(input_file, index=False)
+    return df.to_dict('records')
+
 # Main function to scrape data from URLs
 def scrape_data(urls):
     scraped_data = []
+    updated_records = []
+    
     for url_info in urls:
         url = url_info['URL']
-        url_type = url_info['Type (HTML/XML, Javascript, PDF)']
-        title = url_info['Name']  # Use the 'Name' column as the title
+        url_type = url_info.get('Type (HTML/XML, Javascript, PDF)', detect_website_type(url))
+        title = url_info['Name']
+        
+        # Create record for updating the input CSV
+        record = {
+            'Name': title,
+            'URL': url,
+            'Type (HTML/XML, Javascript, PDF)': url_type,
+            'Robots.txt permission?': 'YES' if check_robots_permission(url) else 'NO'
+        }
+        
         try:
-            if url_type == "HTML":
-                data = scrape_html(url)
-            elif url_type == "PDF":
-                data = scrape_pdf(url, title)
+            if not check_robots_permission(url):
+                print(f"Scraping disallowed for {url}")
+                content = "Scraping disallowed by robots.txt"
+                record['Accessible?'] = 'NO'
             else:
-                data = {"Title": title, "Content": "No content extracted"}
+                if url_type == "HTML":
+                    data = scrape_html(url)
+                    content = data.get('Content', '')
+                elif url_type == "PDF":
+                    data = scrape_pdf(url, title)
+                    content = data.get('Content', '')
+                else:
+                    content = "Unsupported file type"
+                
+                record['Accessible?'] = check_accessibility(url, content)
             
-            data["URL"] = url  # Add the URL to the data
-            scraped_data.append(data)
-            print(f"Scraped data from {url}")
+            scraped_data.append({
+                "URL": url,
+                "Title": title,
+                "Content": content
+            })
+            
         except Exception as e:
             print(f"Failed to scrape {url}: {e}")
-            scraped_data.append({"URL": url, "Title": title, "Content": str(e)})
+            content = str(e)
+            record['Accessible?'] = 'NO'
+            scraped_data.append({
+                "URL": url,
+                "Title": title,
+                "Content": content
+            })
+        
+        updated_records.append(record)
+    
+    # Update the input CSV with accessibility information
+    df = pd.DataFrame(updated_records)
+    df.to_csv('Tests/webScraping test/data/websites.csv', index=False)
+    
     return scraped_data
 
 # Save scraped data to a CSV file
@@ -85,11 +187,14 @@ def save_to_csv(data, output_file):
 
 # Example usage
 if __name__ == "__main__":
-    file_path = "webScraping test\data\websites2.csv"  # Input CSV file containing URLs
-    output_file = "webScraping test\data\scraped_data_test3.csv"  # Output CSV file
+    file_path = "Tests/webScraping test/data/websites.csv"
+    output_file = "Tests/webScraping test/data/scraped_data.csv"
     
-    url_list = load_urls(file_path)
-    print(f"Loaded {len(url_list)} URLs.")
+    # First analyze and update the input CSV
+    url_list = analyze_and_update_csv(file_path)
+    print(f"Loaded and analyzed {len(url_list)} URLs.")
     
+    # Then perform the scraping
     scraped_data = scrape_data(url_list)
     save_to_csv(scraped_data, output_file)
+    print("Scraping completed. Input and output files have been updated.")
