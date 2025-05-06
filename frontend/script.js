@@ -33,42 +33,97 @@ input.addEventListener('keypress',e=>{
 });
 
 function sendMessage(){
-    const text=input.value.trim();
+    const text = input.value.trim();
     if (!text) return;
 
     appendMessage('user', text);
-    input.value='';
+    input.value = '';
 
-    // Update to use Render backend URL
+    // Create a placeholder message for the bot
+    const botMessageId = 'bot-message-' + Date.now();
+    appendPlaceholderMessage('bot', botMessageId);
+
     // Show loading spinner
     const loading = document.getElementById('loading');
     loading.style.display = 'block';
 
-    fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: text })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Hide loading spinner
-        loading.style.display = 'none';
+    const eventSource = new EventSource(`https://podc-chatbot-backend-v2.onrender.com/chat?message=${encodeURIComponent(text)}`);
+    let fullResponse = '';
+    let citations = [];
 
-        if (data.response) {
-            appendMessage('bot', data.response, data.citations);
-        } else {
-            appendMessage('bot', "Sorry, something went wrong.");
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Hide loading spinner
-        loading.style.display = 'none';
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
         
-        appendMessage('bot', "Sorry, something went wrong.");
-    });
+        if (data.type === 'text') {
+            fullResponse += data.content;
+            updateBotMessage(botMessageId, fullResponse, citations);
+        } else if (data.type === 'citations') {
+            citations = data.content;
+            updateBotMessage(botMessageId, fullResponse, citations);
+        }
+    };
+
+    eventSource.onerror = (error) => {
+        console.error('EventSource failed:', error);
+        eventSource.close();
+        loading.style.display = 'none';
+        if (!fullResponse) {
+            updateBotMessage(botMessageId, 'Sorry, something went wrong.', []);
+        }
+    };
+}
+
+function appendPlaceholderMessage(sender, messageId) {
+    const message = document.createElement('div');
+    message.className = `msg ${sender}`;
+    message.id = messageId;
+    msg.appendChild(message);
+    msg.scrollTop = msg.scrollHeight;
+}
+
+function updateBotMessage(messageId, text, citations) {
+    const message = document.getElementById(messageId);
+    if (!message) return;
+
+    // Update main text
+    let responseText = message.querySelector('.response-text');
+    if (!responseText) {
+        responseText = document.createElement('div');
+        responseText.className = 'response-text';
+        message.appendChild(responseText);
+    }
+    responseText.innerHTML = marked.parse(text);
+
+    // Update citations
+    if (citations && citations.length > 0) {
+        let citationsList = message.querySelector('.citations');
+        if (!citationsList) {
+            citationsList = document.createElement('div');
+            citationsList.className = 'citations';
+            message.appendChild(citationsList);
+        }
+
+        citationsList.innerHTML = ''; // Clear existing citations
+        
+        const citationHeader = document.createElement('div');
+        citationHeader.className = 'citation-header';
+        citationHeader.textContent = 'Sources:';
+        citationsList.appendChild(citationHeader);
+
+        const uniqueCitations = citations.filter((citation, index, self) =>
+            index === self.findIndex((c) => c.filename === citation.filename)
+        );
+
+        uniqueCitations.forEach(citation => {
+            const citationItem = document.createElement('div');
+            citationItem.className = 'citation-item';
+            const cleanFileName = citation.filename.replace(/\.[^/.]+$/, "");
+            citationItem.textContent = cleanFileName;
+            citationsList.appendChild(citationItem);
+        });
+    }
+
+    msg.scrollTop = msg.scrollHeight;
 }
 
 function appendMessage(sender, text, citations = []) {
