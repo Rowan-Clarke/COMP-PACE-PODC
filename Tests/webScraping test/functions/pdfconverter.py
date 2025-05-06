@@ -20,19 +20,66 @@ class WebsiteToPdfConverter:
         self.wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
         self.config = pdfkit.configuration(wkhtmltopdf=self.wkhtmltopdf_path)
 
-    def get_categorized_filepath(self, title: str, category: str) -> str:
-        """Create category directory and return full filepath"""
-        # Clean the filename and category
-        safe_title = re.sub(r'[<>:"/\\|?*]', '', title)
-        safe_category = re.sub(r'[<>:"/\\|?*]', '', category)
+    def get_domain_owner(self, url: str) -> str:
+        """Extract and clean domain name from URL"""
+        domain = urlparse(url).netloc.lower()
+        # Remove www. and .com/.org/.gov etc
+        domain = re.sub(r'^www\.', '', domain)
+        domain = re.sub(r'\.(?:com|org|gov|edu|net)\.[a-z]{2}$|\.(?:com|org|gov|edu|net)$', '', domain)
+        # Convert to title case and replace dots with spaces
+        return domain.replace('.', ' ').title()
+
+    def get_categorized_filepath(self, title: str, category: str, url: str) -> str:
+        """Create category directory and return full filepath with owner"""
+        try:
+            # Clean the filename and category
+            safe_title = re.sub(r'[<>:"/\\|?*]', '', title)
+            safe_category = re.sub(r'[<>:"/\\|?*]', '', category)
+            owner = self.get_domain_owner(url)
+            
+            # Truncate category name if too long
+            if len(safe_category) > 50:
+                safe_category = safe_category[:47] + "..."
+                
+            # Create shorter filename components
+            title_part = safe_title[:50] if len(safe_title) > 50 else safe_title
+            owner_part = owner[:30] if len(owner) > 30 else owner
+            
+            # Create category directory
+            category_dir = os.path.join(self.output_dir, safe_category)
+            os.makedirs(category_dir, exist_ok=True)
+            
+            # Create filename with truncated parts
+            filename = f"{title_part} _ {owner_part} _ {safe_category}.pdf"
+            output_file = os.path.join(category_dir, filename)
+            
+            # Verify total path length
+            if len(output_file) > 240:  # Leave some margin from 260
+                filename = f"{title_part[:30]}... _ {owner_part[:20]} _ {safe_category[:30]}.pdf"
+                output_file = os.path.join(category_dir, filename)
+                
+            return output_file
+            
+        except Exception as e:
+            logging.error(f"File system error: {str(e)}")
+            raise
+
+    def is_valid_pdf(self, content: bytes, content_type: str) -> bool:
+        """Verify if content is actually a valid PDF"""
+        # Check magic number for PDF
+        pdf_signature = b'%PDF-'
+        if not content.startswith(pdf_signature):
+            return False
         
-        # Create category directory
-        category_dir = os.path.join(self.output_dir, safe_category)
-        os.makedirs(category_dir, exist_ok=True)
-        
-        # Create filename with category
-        filename = f"{safe_title} _ {safe_category}.pdf"
-        return os.path.join(category_dir, filename)
+        # Check content type
+        if not ('pdf' in content_type.lower() and 'html' not in content_type.lower()):
+            return False
+            
+        # Check minimum valid size (500 bytes)
+        if len(content) < 500:
+            return False
+            
+        return True
 
     def download_pdf(self, url: str, title: str, category: str) -> bool:
         """Download existing PDF files"""
@@ -40,7 +87,7 @@ class WebsiteToPdfConverter:
             logging.error(f"Failed to download PDF {url}: Blocked by robots.txt")
             return False
 
-        output_file = self.get_categorized_filepath(title, category)
+        output_file = self.get_categorized_filepath(title, category, url)
         
         try:
             headers = {
@@ -60,14 +107,19 @@ class WebsiteToPdfConverter:
             
             response.raise_for_status()
             
-            # Check if content appears to be PDF
+            # Enhanced PDF validation
             content_type = response.headers.get('content-type', '').lower()
-            if not ('pdf' in content_type or response.content.startswith(b'%PDF')):
-                logging.error(f"Failed to download PDF {url}: Content is not a PDF (received {content_type})")
+            if not self.is_valid_pdf(response.content, content_type):
+                logging.error(f"Failed to download PDF {url}: Invalid PDF format or corrupted content")
                 return False
             
             with open(output_file, 'wb') as f:
-                f.write(response.content)
+                # Write in chunks to handle large files
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                f.flush()
+                os.fsync(f.fileno())  # Ensure content is written to disk
                 
             logging.info(f"Successfully saved PDF to {output_file}")
             return True
@@ -101,7 +153,7 @@ class WebsiteToPdfConverter:
             logging.error(f"Failed to convert {url}: Blocked by robots.txt")
             return False
             
-        output_file = self.get_categorized_filepath(title, category)
+        output_file = self.get_categorized_filepath(title, category, url)
         
         options = {
             'quiet': '',
@@ -110,7 +162,10 @@ class WebsiteToPdfConverter:
             'enable-local-file-access': None,
             'custom-header': [
                 ('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            ]
+            ],
+            'javascript-delay': 1000,  # Wait for JS content
+            'load-error-handling': 'ignore',
+            'load-media-error-handling': 'ignore'
         }
         
         try:
