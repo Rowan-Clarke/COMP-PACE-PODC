@@ -48,6 +48,7 @@ def chat():
             model="gpt-4o-mini",
             instructions="You are a helpful AI assistant for Parents of Deaf Children (PODC). Provide accurate, supportive, and accessible information",
             input=user_message,
+            top_p=0.35 # Adjusted to 0.35 for more focused responses
             tools=[{
                 "type": "file_search",
                 "vector_store_ids": ["vs_6815cd852cd8819192d3e761547c08b5"]
