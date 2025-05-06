@@ -6,6 +6,13 @@ import os
 import logging
 import requests  # Add this import
 import re
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 
 # Configure logging
 logging.basicConfig(
@@ -19,6 +26,14 @@ class WebsiteToPdfConverter:
         os.makedirs(output_dir, exist_ok=True)
         self.wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
         self.config = pdfkit.configuration(wkhtmltopdf=self.wkhtmltopdf_path)
+        
+        # Initialize Chrome options
+        self.chrome_options = Options()
+        self.chrome_options.add_argument('--headless')
+        self.chrome_options.add_argument('--disable-gpu')
+        self.chrome_options.add_argument('--no-sandbox')
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
+        self.chrome_options.add_argument('--window-size=1920,1080')
 
     def get_domain_owner(self, url: str) -> str:
         """Extract and clean domain name from URL"""
@@ -32,30 +47,27 @@ class WebsiteToPdfConverter:
     def get_categorized_filepath(self, title: str, category: str, url: str) -> str:
         """Create category directory and return full filepath with owner"""
         try:
-            # Clean the filename and category
+            # Clean and heavily truncate filename components
             safe_title = re.sub(r'[<>:"/\\|?*]', '', title)
             safe_category = re.sub(r'[<>:"/\\|?*]', '', category)
             owner = self.get_domain_owner(url)
             
-            # Truncate category name if too long
-            if len(safe_category) > 50:
-                safe_category = safe_category[:47] + "..."
-                
-            # Create shorter filename components
-            title_part = safe_title[:50] if len(safe_title) > 50 else safe_title
-            owner_part = owner[:30] if len(owner) > 30 else owner
+            # Much shorter components
+            title_part = safe_title[:30] if len(safe_title) > 30 else safe_title
+            owner_part = owner[:20] if len(owner) > 20 else owner
+            category_part = safe_category[:20] if len(safe_category) > 20 else safe_category
             
-            # Create category directory
-            category_dir = os.path.join(self.output_dir, safe_category)
+            # Create shorter category directory
+            category_dir = os.path.join(self.output_dir, category_part)
             os.makedirs(category_dir, exist_ok=True)
             
-            # Create filename with truncated parts
-            filename = f"{title_part} _ {owner_part} _ {safe_category}.pdf"
+            # Create shorter filename
+            filename = f"{title_part}_{owner_part}.pdf"
             output_file = os.path.join(category_dir, filename)
             
-            # Verify total path length
-            if len(output_file) > 240:  # Leave some margin from 260
-                filename = f"{title_part[:30]}... _ {owner_part[:20]} _ {safe_category[:30]}.pdf"
+            # Final length check
+            if len(output_file) > 240:
+                filename = f"{title_part[:20]}_{owner_part[:10]}.pdf"
                 output_file = os.path.join(category_dir, filename)
                 
             return output_file
@@ -148,6 +160,40 @@ class WebsiteToPdfConverter:
             logging.warning(f"Could not check robots.txt for {domain}: {e}")
             return True
 
+    def convert_with_selenium(self, url: str, output_file: str) -> bool:
+        """Use Selenium for JavaScript-heavy pages"""
+        try:
+            driver = webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()),
+                options=self.chrome_options
+            )
+            
+            driver.get(url)
+            # Wait for JavaScript content to load
+            time.sleep(5)
+            
+            # Set up PDF printing preferences
+            print_options = {
+                'landscape': False,
+                'displayHeaderFooter': False,
+                'printBackground': True,
+                'preferCSSPageSize': True,
+            }
+            
+            # Print to PDF
+            pdf = driver.print_page(print_options)
+            
+            # Save the PDF
+            with open(output_file, 'wb') as f:
+                f.write(pdf)
+            
+            driver.quit()
+            return True
+            
+        except Exception as e:
+            logging.error(f"Selenium conversion failed: {str(e)}")
+            return False
+
     def convert_url_to_pdf(self, url: str, title: str, category: str) -> bool:
         if not self.check_robots_txt(url):
             logging.error(f"Failed to convert {url}: Blocked by robots.txt")
@@ -155,27 +201,33 @@ class WebsiteToPdfConverter:
             
         output_file = self.get_categorized_filepath(title, category, url)
         
-        options = {
-            'quiet': '',
-            'no-images': '',
-            'encoding': 'UTF-8',
-            'enable-local-file-access': None,
-            'custom-header': [
-                ('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            ],
-            'javascript-delay': 1000,  # Wait for JS content
-            'load-error-handling': 'ignore',
-            'load-media-error-handling': 'ignore'
-        }
-        
+        # Try with pdfkit first
         try:
+            options = {
+                'quiet': '',
+                'no-images': '',
+                'encoding': 'UTF-8',
+                'enable-local-file-access': None,
+                'custom-header': [
+                    ('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                ],
+                'javascript-delay': 2000,  # Increased delay
+                'load-error-handling': 'ignore',
+                'load-media-error-handling': 'ignore'
+            }
+            
             pdfkit.from_url(url, output_file, options=options, configuration=self.config)
             return True
+            
         except Exception as e:
+            if "javascript" in str(e).lower() or "Exit with code 1" in str(e):
+                logging.info(f"Attempting Selenium fallback for {url}")
+                if self.convert_with_selenium(url, output_file):
+                    logging.info(f"Successfully converted with Selenium: {url}")
+                    return True
+                    
             if "ContentNotFoundError" in str(e):
                 logging.error(f"Failed to convert {url}: Page not found")
-            elif "Exit with code 1" in str(e):
-                logging.error(f"Failed to convert {url}: Conversion error - possibly JavaScript-heavy page")
             else:
                 logging.error(f"Failed to convert {url}: {e}")
             return False
