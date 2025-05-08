@@ -1,26 +1,28 @@
 import os
 import pandas as pd
 from datetime import datetime
+from PyPDF2 import PdfReader
 
 def create_file_catalog(root_directory):
     # Lists to store file information
     file_names = []
-    mod_dates = []  # New list for modification dates
+    mod_dates = []
     categories = []
     versions = []
     sizes = []
+    source_urls = []  # New list for URLs
 
     # Walk through the directory
     for root, dirs, files in os.walk(root_directory):
-        # Get the immediate parent folder name (category)
         category = os.path.basename(root)
         
-        # Skip the root directory itself
         if root == root_directory:
             continue
             
-        # Process each file
         for file in files:
+            if not file.lower().endswith('.pdf'):
+                continue
+
             file_path = os.path.join(root, file)
             file_names.append(file)
             
@@ -31,32 +33,40 @@ def create_file_catalog(root_directory):
             
             categories.append(category)
             
-            # Get file size in kilobytes
+            # Get file size
             size_kb = round(os.path.getsize(file_path) / 1024, 2)
             sizes.append(size_kb)
             
-            # Determine version based on file name
+            # Get version
             if file.endswith('_OLD.pdf'):
                 versions.append('OLD')
             elif file.endswith('_NEW.pdf'):
                 versions.append('NEW')
             else:
                 versions.append('UNKNOWN')
+
+            # Get source URL from metadata
+            try:
+                reader = PdfReader(file_path)
+                url = reader.metadata.get('/SourceURL', 'No URL found')
+                source_urls.append(url)
+            except Exception as e:
+                source_urls.append('Error reading metadata')
     
-    # Create a DataFrame with five columns
+    # Create DataFrame with six columns
     df = pd.DataFrame({
         'Name': file_names,
         'Date Modified': mod_dates,
         'Category': categories,
         'Version': versions,
-        'Size (KB)': sizes
+        'Size (KB)': sizes,
+        'Source URL': source_urls
     })
     
     # Generate timestamp for unique filename
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_file = f'file_catalog_{timestamp}.xlsx'
     
-    # Save to Excel
     try:
         df.to_excel(output_file, index=False)
         print(f"Catalog created successfully: {output_file}")
