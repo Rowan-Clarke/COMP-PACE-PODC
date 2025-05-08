@@ -81,29 +81,23 @@ const header=document.getElementById('header');
      responseText.innerHTML = marked.parse(text);
      message.appendChild(responseText);
  
-     // Add unique citations if they exist
+     // Add citations if they exist
      if (citations && citations.length > 0) {
-         // Remove duplicate citations
-         const uniqueCitations = citations.filter((citation, index, self) =>
-             index === self.findIndex((c) => c.filename === citation.filename)
-         );
+         const citationsList = document.createElement('ul');
+         citationsList.className = 'citations-list';
  
-         if (uniqueCitations.length > 0) {
-             const citationsList = document.createElement('ul');
-             citationsList.className = 'citations-list';
+         citations.forEach(citation => {
+             const li = document.createElement('li');
+             // Check if metadata and url exist before trying to use them
+             if (citation.metadata && citation.metadata.url) {
+                 li.innerHTML = `Source: <a href="${citation.metadata.url}" target="_blank">${citation.filename}</a>`;
+             } else {
+                 li.textContent = `Source: ${citation.filename}`;
+             }
+             citationsList.appendChild(li);
+         });
  
-             uniqueCitations.forEach(citation => {
-                 const li = document.createElement('li');
-                 if (citation.metadata && citation.metadata.url) {
-                     li.innerHTML = `Source: <a href="${citation.metadata.url}" target="_blank">${citation.filename}</a>`;
-                 } else {
-                     li.textContent = `Source: ${citation.filename}`;
-                 }
-                 citationsList.appendChild(li);
-             });
- 
-             message.appendChild(citationsList);
-         }
+         message.appendChild(citationsList);
      }
  
      msg.appendChild(message);

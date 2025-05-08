@@ -68,16 +68,30 @@ def chat():
                     if content.type == "output_text":
                         reply = content.text
                         # Extract citations from annotations
-                        if hasattr(content, 'annotations'):
-                            for annotation in content.annotations:
-                                if annotation.type == "file_citation":
-                                    # Append citation details
-                                    file_info = client.files.retrieve(annotation.file_id)
-                                    citations.append({
-                                        'filename': annotation.filename,
-                                        'file_id': annotation.file_id,
-                                        'metadata': file_info.metadata # Include metadata if available
-                                    })
+        if hasattr(response.choices[0].message, 'annotations'):
+            for annotation in response.choices[0].message.annotations:
+                if annotation.type == "file_citation":
+                    # Get file info
+                    try:
+                        file_info = client.files.retrieve(annotation.file_id)
+                        citation = {
+                            'filename': annotation.filename,
+                            'file_id': annotation.file_id,
+                            # Use dictionary-style access for metadata
+                            'metadata': {
+                                'url': file_info.metadata.get('url') if hasattr(file_info, 'metadata') else None,
+                                'category': file_info.metadata.get('category') if hasattr(file_info, 'metadata') else None
+                            }
+                        }
+                        citations.append(citation)
+                    except Exception as e:
+                        print(f"Error retrieving file info: {e}")
+                        # Add citation without metadata if retrieval fails
+                        citations.append({
+                            'filename': annotation.filename,
+                            'file_id': annotation.file_id,
+                            'metadata': {}
+                        })
 
         return jsonify({
             'response': reply,
