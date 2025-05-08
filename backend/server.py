@@ -52,7 +52,7 @@ def chat():
             input=user_message,
             tools=[{
                 "type": "file_search",
-                "vector_store_ids": ["vs_6815cd852cd8819192d3e761547c08b5"]
+                "vector_store_ids": ["vs_681c6bc049b88191897ea7a338837d7c"]
             }],
             include=["file_search_call.results"]  # Include file search results
         )
@@ -71,9 +71,12 @@ def chat():
                         if hasattr(content, 'annotations'):
                             for annotation in content.annotations:
                                 if annotation.type == "file_citation":
+                                    # Append citation details
+                                    file_info = client.files.retrieve(annotation.file_id)
                                     citations.append({
                                         'filename': annotation.filename,
-                                        'file_id': annotation.file_id
+                                        'file_id': annotation.file_id,
+                                        'metadata': file_info.metadata # Include metadata if available
                                     })
 
         return jsonify({

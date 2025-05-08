@@ -89,21 +89,17 @@ const header=document.getElementById('header');
          );
  
          if (uniqueCitations.length > 0) {
-             const citationsList = document.createElement('div');
-             citationsList.className = 'citations';
- 
-             const citationHeader = document.createElement('div');
-             citationHeader.className = 'citation-header';
-             citationHeader.textContent = 'Sources:';
-             citationsList.appendChild(citationHeader);
+             const citationsList = document.createElement('ul');
+             citationsList.className = 'citations-list';
  
              uniqueCitations.forEach(citation => {
-                 const citationItem = document.createElement('div');
-                 citationItem.className = 'citation-item';
-                 // Clean up filename by removing file extension
-                 const cleanFileName = citation.filename.replace(/\.[^/.]+$/, "");
-                 citationItem.textContent =  cleanFileName;;
-                 citationsList.appendChild(citationItem);
+                 const li = document.createElement('li');
+                 if (citation.metadata && citation.metadata.url) {
+                     li.innerHTML = `Source: <a href="${citation.metadata.url}" target="_blank">${citation.filename}</a>`;
+                 } else {
+                     li.textContent = `Source: ${citation.filename}`;
+                 }
+                 citationsList.appendChild(li);
              });
  
              message.appendChild(citationsList);
