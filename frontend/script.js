@@ -96,12 +96,22 @@ const header=document.getElementById('header');
 
         uniqueCitations.forEach(citation => {
             const li = document.createElement('li');
-            // Check if metadata and url exist before trying to use them
+            
+            // Create the citation text with hyperlink
             if (citation.metadata && citation.metadata.url) {
-                li.innerHTML = `Source: <a href="${citation.metadata.url}" target="_blank">${citation.filename}</a>`;
+                // If URL exists in metadata, create a hyperlink
+                const link = document.createElement('a');
+                link.href = citation.metadata.url;
+                link.target = '_blank'; // Open in new tab
+                link.rel = 'noopener noreferrer'; // Security best practice
+                link.textContent = citation.filename;
+                li.textContent = 'Source: ';
+                li.appendChild(link);
             } else {
+                // Fallback for citations without URLs
                 li.textContent = `Source: ${citation.filename}`;
             }
+            
             citationsList.appendChild(li);
         });
 
