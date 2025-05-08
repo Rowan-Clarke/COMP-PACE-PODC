@@ -51,23 +51,26 @@ const header=document.getElementById('header');
          },
          body: JSON.stringify({ message: text })
      })
-     .then(response => response.json())
+     .then(response => {
+         if (!response.ok) {
+             throw new Error(`HTTP error! status: ${response.status}`);
+         }
+         return response.json();
+     })
      .then(data => {
-         // Hide loading spinner
          loading.style.display = 'none';
- 
+         console.log('Response data:', data); // Add this debug log
          if (data.response) {
              appendMessage('bot', data.response, data.citations);
          } else {
-             appendMessage('bot', "Sorry, something went wrong.");
+             appendMessage('bot', "No response received from server");
          }
      })
      .catch(error => {
-         console.error('Error:', error);
-         // Hide loading spinner
+         console.error('Detailed error:', error.message);
+         console.error('Full error object:', error);
          loading.style.display = 'none';
- 
-         appendMessage('bot', "Sorry, something went wrong.");
+         appendMessage('bot', "Sorry, something went wrong. Error: " + error.message);
      });
  }
  
