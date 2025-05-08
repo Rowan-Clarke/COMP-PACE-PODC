@@ -59,6 +59,18 @@ const header=document.getElementById('header');
      })
      .then(data => {
          loading.style.display = 'none';
+         // Add detailed debug logging
+         console.log('Full response data:', data);
+         console.log('Citations:', data.citations);
+         if (data.citations) {
+             data.citations.forEach(citation => {
+                 console.log('Citation metadata:', {
+                     filename: citation.filename,
+                     url: citation.metadata?.url,
+                     fileId: citation.file_id
+                 });
+             });
+         }
          console.log('Response data:', data); // Add this debug log
          if (data.response) {
              appendMessage('bot', data.response, data.citations);

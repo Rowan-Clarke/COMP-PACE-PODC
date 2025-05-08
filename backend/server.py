@@ -90,6 +90,10 @@ def chat():
                                     # Get file info
                                     try:
                                         file_info = client.files.retrieve(annotation.file_id)
+                                        print(f"File info for {annotation.filename}:")
+                                        print(f"- File ID: {annotation.file_id}")
+                                        print(f"- Metadata: {file_info.metadata}")
+                                        print(f"- URL: {file_info.metadata.get('url') if hasattr(file_info, 'metadata') else 'No URL'}")
                                         citation = {
                                             'filename': annotation.filename,
                                             'file_id': annotation.file_id,
