@@ -46,16 +46,32 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
-        response = client.responses.create(
-            model="gpt-4o-mini",
-            instructions="You are a helpful AI assistant for Parents of Deaf Children (PODC). Provide accurate, supportive, and accessible information",
-            input=user_message,
-            tools=[{
-                "type": "file_search",
-                "vector_store_ids": ["vs_681c6bc049b88191897ea7a338837d7c"]
-            }],
-            include=["file_search_call.results"]  # Include file search results
-        )
+        # Add debug print
+        print(f"Received message: {user_message}")
+
+        try:
+            # Test OpenAI connection
+            print("Testing OpenAI connection...")
+            print(f"Using API key (first 4 chars): {api_key[:4]}...")
+            
+            response = client.responses.create(
+                model="gpt-4o-mini",
+                instructions="You are a helpful AI assistant for Parents of Deaf Children (PODC). Provide accurate, supportive, and accessible information",
+                input=user_message,
+                tools=[{
+                    "type": "file_search",
+                    "vector_store_ids": ["vs_681c6bc049b88191897ea7a338837d7c"]
+                }],
+                include=["file_search_call.results"]
+            )
+            print("OpenAI call successful")
+            
+        except Exception as openai_error:
+            print(f"OpenAI API Error: {str(openai_error)}")
+            return jsonify({
+                'response': f'OpenAI API Error: {str(openai_error)}',
+                'citations': []
+            }), 500
 
         # Extract the main response text and citations
         reply = ""
@@ -68,30 +84,30 @@ def chat():
                     if content.type == "output_text":
                         reply = content.text
                         # Extract citations from annotations
-        if hasattr(response.choices[0].message, 'annotations'):
-            for annotation in response.choices[0].message.annotations:
-                if annotation.type == "file_citation":
-                    # Get file info
-                    try:
-                        file_info = client.files.retrieve(annotation.file_id)
-                        citation = {
-                            'filename': annotation.filename,
-                            'file_id': annotation.file_id,
-                            # Use dictionary-style access for metadata
-                            'metadata': {
-                                'url': file_info.metadata.get('url') if hasattr(file_info, 'metadata') else None,
-                                'category': file_info.metadata.get('category') if hasattr(file_info, 'metadata') else None
-                            }
-                        }
-                        citations.append(citation)
-                    except Exception as e:
-                        print(f"Error retrieving file info: {e}")
-                        # Add citation without metadata if retrieval fails
-                        citations.append({
-                            'filename': annotation.filename,
-                            'file_id': annotation.file_id,
-                            'metadata': {}
-                        })
+                        if hasattr(content, 'annotations'):
+                            for annotation in content.annotations:
+                                if annotation.type == "file_citation":
+                                    # Get file info
+                                    try:
+                                        file_info = client.files.retrieve(annotation.file_id)
+                                        citation = {
+                                            'filename': annotation.filename,
+                                            'file_id': annotation.file_id,
+                                            # Use dictionary-style access for metadata
+                                            'metadata': {
+                                                'url': file_info.metadata.get('url') if hasattr(file_info, 'metadata') else None,
+                                                'category': file_info.metadata.get('category') if hasattr(file_info, 'metadata') else None
+                                            }
+                                        }
+                                        citations.append(citation)
+                                    except Exception as e:
+                                        print(f"Error retrieving file info: {e}")
+                                        # Add citation without metadata if retrieval fails
+                                        citations.append({
+                                            'filename': annotation.filename,
+                                            'file_id': annotation.file_id,
+                                            'metadata': {}
+                                        })
 
         return jsonify({
             'response': reply,
@@ -99,8 +115,13 @@ def chat():
         })
 
     except Exception as e:
-        print("Error:", e)
-        return jsonify({'response': 'Sorry, something went wrong.', 'citations': []}), 500
+        print(f"Detailed error: {str(e)}")
+        import traceback
+        print(f"Stack trace: {traceback.format_exc()}")
+        return jsonify({
+            'response': f'Server error: {str(e)}',
+            'citations': []
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
