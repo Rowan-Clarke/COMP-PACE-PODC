@@ -162,6 +162,12 @@ const header=document.getElementById('header');
         flagBtn.textContent = 'Flag';
         flagBtn.className = 'flag-btn';
         flagBtn.onclick = () => {
+            // Prevent multiple flag submissions
+            if (flagBtn.disabled) return;
+            flagBtn.disabled = true;
+            flagBtn.textContent = "Flagged";
+            flagBtn.style.opacity = 0.6;
+
             fetch('https://podc-chatbot-backend-v2.onrender.com/flag', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
