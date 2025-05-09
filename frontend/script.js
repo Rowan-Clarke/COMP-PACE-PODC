@@ -163,6 +163,9 @@ const header=document.getElementById('header');
                     input.disabled=false;
                     sendBtn.disabled=false;
                     appendMessage('bot', "Thank you for accepting, How can I help? :)")
+                    accept.disabled=true;
+                    accept.style.display = 'none';  
+                    decline.style.display = 'none';
                 };
 
                 decline.onclick=()=>{
