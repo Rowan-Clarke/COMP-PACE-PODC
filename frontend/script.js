@@ -1,3 +1,4 @@
+window.onload = () => {
 const header=document.getElementById('header');
  const body=document.getElementById('chat_body');
  const sendBtn=document.getElementById('send_btn');
@@ -29,7 +30,7 @@ const header=document.getElementById('header');
  
  sendBtn.onclick =sendMessage;
  input.addEventListener('keypress',e=>{ 
-     if (e.key==='Enter') sendMessage();   // user presses 'Enter' to send their input as message.
+     if (e.key==='Enter' && !input.disabled) sendMessage();   // user presses 'Enter' to send their input as message.
  });
  
  function sendMessage(){
@@ -149,4 +150,4 @@ const header=document.getElementById('header');
 
     msg.appendChild(message);
     msg.scrollTop = msg.scrollHeight;
-}
+}};

@@ -26,17 +26,5 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>    
 <script src="script.js"></script>    <!-- referencing to JavaScript file-->
 
-<script>
-    function sendMessage(text) {
-        fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: text })
-        });
-    }
-</script>
-
 </body>
 </html>
