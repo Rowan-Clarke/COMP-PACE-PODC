@@ -83,6 +83,14 @@ const header=document.getElementById('header');
          console.error('Full error object:', error);
          loading.style.display = 'none';
          appendMessage('bot', "Sorry, something went wrong. Error: " + error.message);
+     })
+     .finally(() => {
+         // Re-enable input and button
+         input.disabled = false;
+         sendBtn.disabled = false;
+         sendBtn.style.opacity = 1;
+         sendBtn.style.cursor = 'pointer';
+         input.focus();
      });
  }
  
