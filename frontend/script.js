@@ -150,4 +150,5 @@ const header=document.getElementById('header');
 
     msg.appendChild(message);
     msg.scrollTop = msg.scrollHeight;
-}};
+}
+};
