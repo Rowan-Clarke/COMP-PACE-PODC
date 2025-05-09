@@ -66,6 +66,25 @@
     border-radius: 3px;
 }
 
+#accept_bttn, #decline_bttn{
+  margin: 5px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#accept_bttn, #decline_bttn{
+    background-color: #40b2cf;
+    color: white;
+}
+
+#accept_bttn:hover, #decline_bttn:hover{
+    background-color: #2a8ca1;
+ 
+}
 
 .input_box{
     display: flex;

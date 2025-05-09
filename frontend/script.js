@@ -23,7 +23,7 @@ const header=document.getElementById('header');
          arrow.style.transform="rotate(180deg)";
  
          if (!introMessage){
-             appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n <button id=\"accept_bttn\">Accept</button> <button id=\"decline_bttn\">Decline</button>");
+             appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n To consent discussing sensitive information, please press Accept. <div><button id=\"accept_bttn\">Accept</button><button id=\"decline_bttn\">Decline</button></div>");
              introMessage=true;
          }
      }
