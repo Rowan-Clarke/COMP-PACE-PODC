@@ -98,6 +98,7 @@ const header=document.getElementById('header');
          sendBtn.disabled = false;
          sendBtn.style.opacity = 1;
          sendBtn.style.cursor = 'pointer';
+         input.placeholder = "Ask a question...";
          input.focus();
      });
  }
