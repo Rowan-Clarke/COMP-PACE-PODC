@@ -44,6 +44,14 @@ const header=document.getElementById('header');
      const loading = document.getElementById('loading');
      loading.style.display = 'block';
  
+
+     // Disable input and send button
+     input.disabled = true;
+     sendBtn.disabled = true;
+     sendBtn.style.opacity = 0.6;
+     sendBtn.style.cursor = 'not-allowed';
+     input.placeholder = "Please wait...";
+
      fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
          method: 'POST',
          headers: {
