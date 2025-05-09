@@ -258,6 +258,22 @@
     pointer-events: none;
 }
 
+.flag-btn {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.flag-btn:hover {
+    background-color: #e64444;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);

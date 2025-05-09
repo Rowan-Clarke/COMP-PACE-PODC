@@ -4,6 +4,8 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
 import json
+import sqlite3
+from pathlib import Path
 
 # Load environment variables from .env with debugging
 env_path = find_dotenv()
@@ -126,6 +128,73 @@ def chat():
             'response': f'Server error: {str(e)}',
             'citations': []
         }), 500
+
+# Ensure DB exists and create table if needed
+DB_FILE = Path("flags.db")
+
+def init_db():
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS flagged_responses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                user_prompt TEXT,
+                flagged_text TEXT
+            )
+        ''')
+
+# Initialize DB at startup
+init_db()
+
+@app.route('/flag', methods=['POST'])
+def flag_message():
+    try:
+        data = request.get_json()
+        flagged_text = data.get('flaggedText')
+        user_prompt = data.get('userPrompt')
+        timestamp = data.get('timestamp')
+
+        print("\n[FLAGGED]")
+        print(f"- Time: {timestamp}")
+        print(f"- User Prompt: {user_prompt}")
+        print(f"- Flagged Response: {flagged_text}")
+
+        with sqlite3.connect(DB_FILE) as conn:
+            conn.execute('''
+                INSERT INTO flagged_responses (timestamp, user_prompt, flagged_text)
+                VALUES (?, ?, ?)
+            ''', (timestamp, user_prompt, flagged_text))
+
+        return jsonify({"message": "Flag stored in database"}), 200
+
+    except Exception as e:
+        print(f"Error storing flag in database: {e}")
+        return jsonify({"message": "Failed to store flag"}), 500
+
+@app.route('/flags', methods=['GET'])
+def list_flags():
+    try:
+        with sqlite3.connect(DB_FILE) as conn:
+            cursor = conn.execute(
+                'SELECT id, timestamp, user_prompt, flagged_text FROM flagged_responses ORDER BY timestamp DESC'
+            )
+            results = cursor.fetchall()
+
+        flags = [
+            {
+                "id": row[0],
+                "timestamp": row[1],
+                "user_prompt": row[2],
+                "flagged_text": row[3]
+            }
+            for row in results
+        ]
+
+        return jsonify(flags)
+
+    except Exception as e:
+        print(f"Error fetching flags: {e}")
+        return jsonify({"message": "Failed to fetch flagged data"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

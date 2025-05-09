@@ -9,6 +9,7 @@ const header=document.getElementById('header');
  
  let userAccepted = false;
  let introMessage=false;
+ let lastUserMessage = "";  // Track the last thing the user sent
  
  header.onclick = () => {
      if (body.style.maxHeight && body.style.maxHeight !== "0px") {
@@ -38,6 +39,7 @@ const header=document.getElementById('header');
      const text=input.value.trim();
      if (!text) return;
  
+     lastUserMessage = text;
      appendMessage('user', text);
      input.value='';
  
@@ -147,6 +149,34 @@ const header=document.getElementById('header');
         });
 
         message.appendChild(citationsList);
+    }
+
+    // Flagging feature
+    if (
+        sender === 'bot' &&
+        !text.includes("To consent discussing sensitive information") &&
+        !text.includes("Thank you for accepting")
+    ) {
+    
+        const flagBtn = document.createElement('button');
+        flagBtn.textContent = 'Flag';
+        flagBtn.className = 'flag-btn';
+        flagBtn.onclick = () => {
+            fetch('https://podc-chatbot-backend-v2.onrender.com/flag', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    flaggedText: text,
+                    userPrompt: lastUserMessage,
+                    timestamp: new Date().toISOString()
+                })
+            }).then(() => {
+                alert('Thanks for flagging. The team will review this response.');
+            }).catch(() => {
+                alert('Something went wrong while submitting your feedback.');
+            });
+        };
+        message.appendChild(flagBtn);
     }
 
     msg.appendChild(message);
