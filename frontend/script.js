@@ -7,8 +7,8 @@ const header=document.getElementById('header');
  const chatbot = document.querySelector('.chatbot_design');  // <-- get the main container
  const arrow = document.getElementById('arrow');
  
- let userAccepted = false;
- let introMessage=false;
+ let userAccepted = false; // user consent
+ let introMessage=false;  // introduction message from bot
  let lastUserMessage = "";  // Track the last thing the user sent
  
  header.onclick = () => {
@@ -40,7 +40,7 @@ const header=document.getElementById('header');
      if (!text) return;
  
      lastUserMessage = text;
-     appendMessage('user', text);
+     appendMessage('user', text);  // user's message
      input.value='';
  
      // Update to use Render backend URL
@@ -184,29 +184,28 @@ const header=document.getElementById('header');
 
     if(!userAccepted){
         setTimeout(()=>{
+            
             const accept=document.getElementById('accept_bttn');
             const decline=document.getElementById('decline_bttn');
 
-            if(accept && decline){
+            if(accept && decline){    // accept and decline button options/logic
                 accept.onclick=()=>{
                     userAccepted=true;
-                    input.disabled=false;
+                    input.disabled=false;   // input box and send button are useable after user consents (pressing accept)
                     sendBtn.disabled=false;
-                    appendMessage('bot', "Thank you for accepting, How can I help? :)")
+                    appendMessage('bot', "Thank you for accepting, How can I help? :)")  // thank you message
                     accept.disabled=true;
                     accept.style.display = 'none';  
-                    decline.style.display = 'none';
+                    decline.style.display = 'none';   // remove buttons after user makes decision
                 };
 
                 decline.onclick=()=>{
-                    input.disabled=true;
+                    input.disabled=true;   // input box and send button are disabled until user consents.
                     sendBtn.disabled=true;
-                    appendMessage('bot', "To chat with us, you need to press Accept :)")
+                    appendMessage('bot', "To chat with us, you need to press Accept :)")  // message is displayed until user accepts.
                 };
             }
-
         }, 100);
     }
-    
 }
 };
