@@ -7,6 +7,7 @@ const header=document.getElementById('header');
  const chatbot = document.querySelector('.chatbot_design');  // <-- get the main container
  const arrow = document.getElementById('arrow');
  
+ let userAccepted = false;
  let introMessage=false;
  
  header.onclick = () => {
@@ -22,7 +23,7 @@ const header=document.getElementById('header');
          arrow.style.transform="rotate(180deg)";
  
          if (!introMessage){
-             appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :)");
+             appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n <button id=\"accept_bttn\">Accept</button> <button id=\"decline_bttn\">Decline</button>");
              introMessage=true;
          }
      }
@@ -150,5 +151,29 @@ const header=document.getElementById('header');
 
     msg.appendChild(message);
     msg.scrollTop = msg.scrollHeight;
+
+    if(!userAccepted){
+        setTimeout(()=>{
+            const accept=document.getElementById('accept_bttn');
+            const decline=document.getElementById('decline_bttn');
+
+            if(accept && decline){
+                accept.onclick=()=>{
+                    userAccepted=true;
+                    input.disabled=false;
+                    sendBtn.disabled=false;
+                    appendMessage('bot', "Thank you for accepting, How can I help? :)")
+                };
+
+                decline.onclick=()=>{
+                    input.disabled=true;
+                    sendBtn.disabled=true;
+                    appendMessage('bot', "To chat with us, you need to press Accept :)")
+                };
+            }
+
+        }, 100);
+    }
+    
 }
 };
