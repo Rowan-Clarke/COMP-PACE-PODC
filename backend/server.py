@@ -4,8 +4,10 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
 import json
-import sqlite3
-from pathlib import Path
+import requests
+
+SUPABASE_URL = "https://jqcnepfjbcpgsulzbfna.supabase.co"
+SUPABASE_API_KEY = os.environ.get("SUPABASE_API_KEY")
 
 # Load environment variables from .env with debugging
 env_path = find_dotenv()
@@ -129,23 +131,6 @@ def chat():
             'citations': []
         }), 500
 
-# Ensure DB exists and create table if needed
-DB_FILE = Path("flags.db")
-
-def init_db():
-    with sqlite3.connect(DB_FILE) as conn:
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS flagged_responses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                user_prompt TEXT,
-                flagged_text TEXT
-            )
-        ''')
-
-# Initialize DB at startup
-init_db()
-
 @app.route('/flag', methods=['POST'])
 def flag_message():
     try:
@@ -159,42 +144,58 @@ def flag_message():
         print(f"- User Prompt: {user_prompt}")
         print(f"- Flagged Response: {flagged_text}")
 
-        with sqlite3.connect(DB_FILE) as conn:
-            conn.execute('''
-                INSERT INTO flagged_responses (timestamp, user_prompt, flagged_text)
-                VALUES (?, ?, ?)
-            ''', (timestamp, user_prompt, flagged_text))
+        # POST to Supabase
+        headers = {
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/json"
+        }
 
-        return jsonify({"message": "Flag stored in database"}), 200
+        payload = {
+            "timestamp": timestamp,
+            "user_prompt": user_prompt,
+            "flagged_text": flagged_text
+        }
+
+        response = requests.post(
+            f"{SUPABASE_URL}/rest/v1/flags",
+            headers=headers,
+            json=payload
+        )
+
+        if response.status_code == 201:
+            return jsonify({"message": "Flag stored in Supabase"}), 200
+        else:
+            print("Supabase error:", response.text)
+            return jsonify({"message": "Failed to store flag in Supabase"}), 500
 
     except Exception as e:
-        print(f"Error storing flag in database: {e}")
-        return jsonify({"message": "Failed to store flag"}), 500
+        print(f"Error sending flag: {e}")
+        return jsonify({"message": "Internal error storing flag"}), 500
 
 @app.route('/flags', methods=['GET'])
 def list_flags():
     try:
-        with sqlite3.connect(DB_FILE) as conn:
-            cursor = conn.execute(
-                'SELECT id, timestamp, user_prompt, flagged_text FROM flagged_responses ORDER BY timestamp DESC'
-            )
-            results = cursor.fetchall()
+        headers = {
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/json"
+        }
 
-        flags = [
-            {
-                "id": row[0],
-                "timestamp": row[1],
-                "user_prompt": row[2],
-                "flagged_text": row[3]
-            }
-            for row in results
-        ]
+        response = requests.get(
+            f"{SUPABASE_URL}/rest/v1/flags?select=id,timestamp,user_prompt,flagged_text&order=timestamp.desc",
+            headers=headers
+        )
 
-        return jsonify(flags)
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            print("Error fetching from Supabase:", response.text)
+            return jsonify({"message": "Failed to fetch flags"}), 500
 
     except Exception as e:
-        print(f"Error fetching flags: {e}")
-        return jsonify({"message": "Failed to fetch flagged data"}), 500
+        print(f"Error reading flags from Supabase: {e}")
+        return jsonify({"message": "Internal server error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
