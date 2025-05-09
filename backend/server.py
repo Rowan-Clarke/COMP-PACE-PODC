@@ -18,13 +18,13 @@ else:
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, resources={
-    r"/chat": {
+    r"/*": {
         "origins": [
             "http://localhost:5000",
             "https://podc-chatbot-frontend-v2.onrender.com",
             "https://*.onrender.com"
         ],
-        "methods": ["POST"],
+        "methods": ["GET", "POST"],
         "allow_headers": ["Content-Type"]
     }
 })
