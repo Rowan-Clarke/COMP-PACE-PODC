@@ -88,8 +88,8 @@ def batch_add_metadata(data_path, pdf_directory):
         print(f"Error processing batch: {e}")
 
 if __name__ == "__main__":
-    # Use absolute paths
-    base_dir = r"C:\Users\dylan\COMP3850\COMP-PACE-PODC\Tests\webScraping_test"
+    # Use relative paths
+    base_dir = "storage\data"
     data_file = os.path.join(base_dir, "data", "Grouped_Data", "URL_METADATA.csv")
     pdf_dir = os.path.join(base_dir, "data", "Grouped_Data", "COMBINED")
     

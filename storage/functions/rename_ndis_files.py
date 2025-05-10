@@ -24,9 +24,8 @@ def rename_ndis_files(directory):
                     print(f"Error renaming {filename}: {e}")
 
 if __name__ == "__main__":
-    # Get the current directory where the script is running
-    current_directory = os.getcwd()
+    directory = os.getcwd()
     
     print("Starting NDIS file rename process...")
-    rename_ndis_files(current_directory)
+    rename_ndis_files(directory)
     print("Rename process completed!")

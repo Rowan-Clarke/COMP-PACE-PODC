@@ -4,10 +4,10 @@ import re
 
 # filepath: c:\Users\dylan\COMP3850\COMP-PACE-PODC\webScraping test\generate_txt_files.py
 # Define the input CSV file path
-csv_file_path = "Tests\webScraping test\data\scraped_data.csv"
+csv_file_path = "storage\data\scraped_data.csv"
 
 # Define the output directory for the text files
-output_dir = "Tests\webScraping test\data\output_txt_files"
+output_dir = "storage\data\output_txt_files"
 
 # Create the output directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)

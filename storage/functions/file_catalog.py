@@ -75,7 +75,8 @@ def create_file_catalog(root_directory):
         print(f"Error creating Excel file: {e}")
 
 if __name__ == "__main__":
-    directory = r"C:\Users\dylan\COMP3850\COMP-PACE-PODC\Tests\webScraping_test\data\Grouped_Data\COMBINED"
-    
+    # Get the current directory where the script is running
+    directory = "storage\data\Grouped_Data\COMBINED"
+
     print("Starting catalog creation...")
     create_file_catalog(directory)
