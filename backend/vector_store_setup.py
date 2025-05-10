@@ -71,7 +71,7 @@ def get_catalog_metadata(directory):
         print(f"Error in get_catalog_metadata: {e}")
         return {}
 
-def process_files(directory):
+def process_files(directory, vector_store_id):
     """
     Process files and upload them to OpenAI with metadata
     """
@@ -89,15 +89,29 @@ def process_files(directory):
             else:
                 metadata = get_file_metadata(file_path)
             
-            # Upload file
+            # Upload file first
             with open(file_path, 'rb') as file:
-                response = client.files.create(
+                uploaded_file = client.files.create(
                     file=file,
                     purpose="assistants"
                 )
-                files_with_metadata.append((response.id, metadata))
-                print(f"Uploaded {filename}: {response.id}")
-                print(f"Metadata: {metadata}")
+                
+                # Create vector store file with metadata as attributes
+                vector_file = client.vector_stores.files.create(
+                    vector_store_id=vector_store_id,
+                    file_id=uploaded_file.id,
+                    attributes={
+                        'filename': metadata['filename'],
+                        'category': metadata['category'],
+                        'url': metadata['url'] if metadata['url'] else '',
+                        'version': str(metadata['version']),
+                        'last_modified': str(metadata['last_modified'])
+                    }
+                )
+                
+                files_with_metadata.append((vector_file.id, metadata))
+                print(f"Uploaded and processed {filename}: {vector_file.id}")
+                print(f"Metadata attributes: {vector_file.attributes}")
                 
         except Exception as e:
             print(f"Error processing {file_path}: {e}")
@@ -109,7 +123,7 @@ def create_vector_store():
     """Create a new vector store"""
     try:
         response = client.vector_stores.create(
-            name="podc_knowledge_base",
+            name="podc_knowledge_base_attributes",
         )
         print(f"Created vector store with ID: {response.id}")
         return response.id
@@ -137,7 +151,7 @@ def create_file_batch(vector_store_id, files_with_metadata):
 
 def main():
     # Use absolute path for base directory
-    base_dir = Path(project_root) / "Tests/webScraping_test/data/Grouped_Data/COMBINED"
+    base_dir = Path(project_root) / "storage\data\Grouped_Data\COMBINED"
     base_dir = base_dir.resolve()
     
     print(f"Processing files in: {base_dir}")
@@ -149,7 +163,7 @@ def main():
         return
     
     # Process and upload files
-    files_with_metadata = process_files(base_dir)
+    files_with_metadata = process_files(base_dir, vector_store_id)
     
     if not files_with_metadata:
         print("No files were processed successfully")
