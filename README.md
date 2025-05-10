@@ -31,5 +31,5 @@ This project is deployed on Render.com:
 - Backend: Python web service
 
 ### Production URLs
-- Frontend: https://podc-chatbot-frontend-v1.onrender.com
-- Backend: https://podc-chatbot-backend-v1.onrender.com
+- Frontend: https://podc-chatbot-frontend-v2.onrender.com
+- Backend: https://podc-chatbot-backend-v2.onrender.com
