@@ -11,6 +11,13 @@ const header=document.getElementById('header');
  let introMessage=false;  // introduction message from bot
  let lastUserMessage = "";  // Track the last thing the user sent
 
+ // Add this helper function at the top of your script
+ function cleanFileName(filename) {
+    return filename
+        .replace(/_NEW\.pdf$/, '')
+        .replace(/_OLD\.pdf$/, '');
+ }
+
  // Disable chat input and send button until user accepts the consent form
  input.disabled = true;
  sendBtn.disabled = true;
@@ -135,23 +142,22 @@ const header=document.getElementById('header');
 
         uniqueCitations.forEach(citation => {
             const li = document.createElement('li');
-            
-            // Get URL from metadata
             const url = citation.metadata?.url;
             
+            // Clean the filename by removing _NEW.pdf and _OLD.pdf
+            const cleanedFileName = cleanFileName(citation.filename);
+            
             if (url) {
-                // Create clickable link if URL exists
                 const link = document.createElement('a');
                 link.href = url;
-                link.target = '_blank';  // Open in new tab
-                link.rel = 'noopener noreferrer';  // Security best practice
-                link.textContent = citation.filename;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = cleanedFileName;  // Use cleaned filename
                 
                 li.textContent = 'Source: ';
                 li.appendChild(link);
             } else {
-                // Fallback for citations without URLs
-                li.textContent = `Source: ${citation.filename}`;
+                li.textContent = `Source: ${cleanedFileName}`;  // Use cleaned filename
             }
             
             citationsList.appendChild(li);
