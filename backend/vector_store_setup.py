@@ -9,14 +9,14 @@ import time
 
 # Setup project paths
 project_root = Path(__file__).parent.parent.resolve()
-tests_path = project_root / "Tests"
+tests_path = project_root / "storage/data"
 
 # Add paths to Python path
 sys.path.append(str(project_root))
 sys.path.append(str(tests_path))
 
 # Import the file_catalog function - use explicit import from Tests directory
-from Tests.webScraping_test.functions.file_catalog import create_file_catalog
+from storage.functions.file_catalog import create_file_catalog
 
 # Load environment variables
 load_dotenv()
