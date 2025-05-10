@@ -207,6 +207,11 @@ const header=document.getElementById('header');
                     userAccepted=true;
                     input.disabled=false;   // input box and send button are useable after user consents (pressing accept)
                     sendBtn.disabled=false;
+
+                    // Reset cursor and opacity
+                    sendBtn.style.cursor = 'pointer';
+                    sendBtn.style.opacity = 1;
+
                     appendMessage('bot', "Thank you for accepting, How can I help? :)")  // thank you message
                     accept.disabled=true;
                     accept.style.display = 'none';  
