@@ -15,14 +15,35 @@ def check_vector_store(vector_store_id="vs_681eac93bf088191bd4f7de05e04dbbf"):
         print(f"\nChecking Vector Store: {vector_store_id}")
         print("=" * 50)
         
-        # Get vector store files
-        vector_store_files = client.vector_stores.files.list(vector_store_id)
+        # Create a list to store all files
+        all_files = []
+        
+        # Initialize pagination
+        after = None
+        while True:
+            # Get vector store files with pagination
+            vector_store_files = client.vector_stores.files.list(
+                vector_store_id,
+                after=after
+            )
+            
+            # Add files to our collection
+            all_files.extend(vector_store_files.data)
+            
+            # Check if there are more files to fetch
+            if not vector_store_files.has_more:
+                break
+                
+            # Update the pagination cursor
+            after = vector_store_files.last_id
+        
+        print(f"Total files found: {len(all_files)}")
         
         # Create a list to store file data
         files_data = []
         
         # Extract relevant information from each file
-        for file in vector_store_files.data:
+        for file in all_files:
             # Start with base file data
             file_data = {
                 'File ID': file.id,

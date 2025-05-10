@@ -126,7 +126,6 @@ const header=document.getElementById('header');
 
     // Add citations if they exist
     if (citations && citations.length > 0) {
-        // Filter unique citations based on filename
         const uniqueCitations = citations.filter((citation, index, self) =>
             index === self.findIndex(c => c.filename === citation.filename)
         );
@@ -137,14 +136,17 @@ const header=document.getElementById('header');
         uniqueCitations.forEach(citation => {
             const li = document.createElement('li');
             
-            // Create the citation text with hyperlink
-            if (citation.metadata && citation.metadata.url) {
-                // If URL exists in metadata, create a hyperlink
+            // Get URL from metadata
+            const url = citation.metadata?.url;
+            
+            if (url) {
+                // Create clickable link if URL exists
                 const link = document.createElement('a');
-                link.href = citation.metadata.url;
-                link.target = '_blank'; // Open in new tab
-                link.rel = 'noopener noreferrer'; // Security best practice
+                link.href = url;
+                link.target = '_blank';  // Open in new tab
+                link.rel = 'noopener noreferrer';  // Security best practice
                 link.textContent = citation.filename;
+                
                 li.textContent = 'Source: ';
                 li.appendChild(link);
             } else {

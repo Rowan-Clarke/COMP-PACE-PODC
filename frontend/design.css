@@ -214,7 +214,7 @@
 
 .citations-list a:hover {
     color: #3599b3;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 .citations-list a::after {

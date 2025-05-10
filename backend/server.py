@@ -64,7 +64,7 @@ def chat():
                 input=user_message,
                 tools=[{
                     "type": "file_search",
-                    "vector_store_ids": ["vs_681c6bc049b88191897ea7a338837d7c"]
+                    "vector_store_ids": ["vs_681eac93bf088191bd4f7de05e04dbbf"]
                 }],
                 include=["file_search_call.results"]
             )
@@ -91,26 +91,31 @@ def chat():
                         if hasattr(content, 'annotations'):
                             for annotation in content.annotations:
                                 if annotation.type == "file_citation":
-                                    # Get file info
+                                    # Get file info from vector store instead of regular files
                                     try:
-                                        file_info = client.files.retrieve(annotation.file_id)
+                                        vector_file = client.vector_stores.files.retrieve(
+                                            vector_store_id="vs_681eac93bf088191bd4f7de05e04dbbf",
+                                            file_id=annotation.file_id
+                                        )
+                                        
+                                        # Extract URL from attributes if available
+                                        url = vector_file.attributes.get('url') if vector_file.attributes else None
+                                        
                                         print(f"File info for {annotation.filename}:")
                                         print(f"- File ID: {annotation.file_id}")
-                                        print(f"- Metadata: {file_info.metadata}")
-                                        print(f"- URL: {file_info.metadata.get('url') if hasattr(file_info, 'metadata') else 'No URL'}")
+                                        print(f"- URL: {url}")
+                                        
                                         citation = {
                                             'filename': annotation.filename,
                                             'file_id': annotation.file_id,
-                                            # Use dictionary-style access for metadata
                                             'metadata': {
-                                                'url': file_info.metadata.get('url') if hasattr(file_info, 'metadata') else None,
-                                                'category': file_info.metadata.get('category') if hasattr(file_info, 'metadata') else None
+                                                'url': url,
+                                                'category': vector_file.attributes.get('category') if vector_file.attributes else None
                                             }
                                         }
                                         citations.append(citation)
                                     except Exception as e:
                                         print(f"Error retrieving file info: {e}")
-                                        # Add citation without metadata if retrieval fails
                                         citations.append({
                                             'filename': annotation.filename,
                                             'file_id': annotation.file_id,
