@@ -10,6 +10,13 @@ const header=document.getElementById('header');
  let userAccepted = false; // user consent
  let introMessage=false;  // introduction message from bot
  let lastUserMessage = "";  // Track the last thing the user sent
+
+ // Disable chat input and send button until user accepts the consent form
+ input.disabled = true;
+ sendBtn.disabled = true;
+ sendBtn.style.opacity = 0.6;
+ sendBtn.style.cursor = 'not-allowed';
+
  
  header.onclick = () => {
      if (body.style.maxHeight && body.style.maxHeight !== "0px") {
@@ -155,7 +162,8 @@ const header=document.getElementById('header');
     if (
         sender === 'bot' &&
         !text.includes("To consent discussing sensitive information") &&
-        !text.includes("Thank you for accepting")
+        !text.includes("Thank you for accepting") &&
+        !text.includes("To chat with us, you need to press Accept :)")
     ) {
     
         const flagBtn = document.createElement('button');
