@@ -90,8 +90,8 @@ def batch_add_metadata(data_path, pdf_directory):
 if __name__ == "__main__":
     # Use relative paths
     base_dir = "storage\data"
-    data_file = os.path.join(base_dir, "data", "Grouped_Data", "URL_METADATA.csv")
-    pdf_dir = os.path.join(base_dir, "data", "Grouped_Data", "COMBINED")
+    data_file = os.path.join(base_dir, "Grouped_Data", "URL_METADATA.csv")
+    pdf_dir = os.path.join(base_dir, "Grouped_Data", "COMBINED")
     
     print("Starting batch metadata addition...")
     print(f"Reading metadata from: {data_file}")

@@ -87,7 +87,7 @@ def process_files(directory, vector_store_id):
             if filename in catalog_metadata:
                 metadata = catalog_metadata[filename]
             else:
-                metadata = get_file_metadata(file_path)
+                metadata = "filename unknown"
             
             # Upload file first
             with open(file_path, 'rb') as file:

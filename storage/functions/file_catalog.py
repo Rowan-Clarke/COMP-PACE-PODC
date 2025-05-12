@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from PyPDF2 import PdfReader
 
-def create_file_catalog(root_directory):
+def create_file_catalog(root_directory, output_directory=None):
     # Lists to store file information
     file_names = []
     mod_dates = []
@@ -67,6 +67,12 @@ def create_file_catalog(root_directory):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_file = f'file_catalog_{timestamp}.xlsx'
     
+    # If output directory is specified, join it with filename
+    if output_directory:
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+        output_file = os.path.join(output_directory, output_file)
+    
     try:
         df.to_excel(output_file, index=False)
         print(f"Catalog created successfully: {output_file}")
@@ -75,8 +81,8 @@ def create_file_catalog(root_directory):
         print(f"Error creating Excel file: {e}")
 
 if __name__ == "__main__":
-    # Get the current directory where the script is running
     directory = "storage\data\Grouped_Data\COMBINED"
+    output_dir = "storage\data\Catalogs"  # Example output directory
 
     print("Starting catalog creation...")
-    create_file_catalog(directory)
+    create_file_catalog(directory, output_dir)
