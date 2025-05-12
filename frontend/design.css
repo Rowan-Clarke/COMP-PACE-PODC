@@ -259,19 +259,17 @@
 }
 
 .flag-btn {
-    background-color: #f88b60;
-    color: white;
+    background-color: #e3f7fb;
+    color: #f86060;
     border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
+    border-radius: 10px;
     font-size: 12px;
-    margin-top: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .flag-btn:hover {
-    background-color: #f5723f;
+    background-color: #ffc6c6;
 }
 
 @keyframes spin {
