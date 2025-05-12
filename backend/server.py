@@ -24,7 +24,9 @@ CORS(app, resources={
         "origins": [
             "http://localhost:5000",
             "https://podc-chatbot-frontend-v2.onrender.com",
-            "https://*.onrender.com"
+            "https://*.onrender.com",
+            "https://macquarieuniversity.wildapricot.org/", #Change to PODC domain for integration
+            "https://*.wildapricot.org"
         ],
         "methods": ["GET", "POST"],
         "allow_headers": ["Content-Type"]
