@@ -92,7 +92,7 @@ def create_file_catalog(root_directory, output_directory=None):
         print(f"Error creating Excel file: {e}")
 
 if __name__ == "__main__":
-    directory = "storage\data\Grouped_Data\COMBINED"
+    directory = "storage\data\PDFs\files" # Example directory to scan
     output_dir = "storage\data\Catalogs"  # Example output directory
 
     print("Starting catalog creation...")
