@@ -2,8 +2,8 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 import pandas as pd
 
-def add_pdf_metadata(pdf_path, url):
-    """Add source URL to PDF metadata."""
+def add_pdf_metadata(pdf_path, url, title=None, author=None):
+    """Add source URL, title, and author to PDF metadata."""
     try:
         # Open the PDF
         reader = PdfReader(pdf_path)
@@ -13,10 +13,15 @@ def add_pdf_metadata(pdf_path, url):
         for page in reader.pages:
             writer.add_page(page)
 
+        # Prepare metadata
+        metadata = {"/SourceURL": url}
+        if title:
+            metadata["/Title"] = title
+        if author:
+            metadata["/Author"] = author
+
         # Add metadata
-        writer.add_metadata({
-            "/SourceURL": url
-        })
+        writer.add_metadata(metadata)
 
         # Save with new metadata
         temp_path = pdf_path + ".temp"
@@ -38,17 +43,24 @@ def find_pdf_in_subdirectories(base_dir, filename):
     return None
 
 def batch_add_metadata(data_path, pdf_directory):
-    """Add URLs to PDFs based on Excel/CSV file data."""
+    """Add metadata to PDFs based on Excel/CSV file data."""
     try:
-        # Read the data file based on extension
+        # Read the data file based on extension with different encodings
         if data_path.lower().endswith('.csv'):
-            df = pd.read_csv(data_path)
+            try:
+                df = pd.read_csv(data_path, encoding='utf-8')
+            except UnicodeDecodeError:
+                try:
+                    df = pd.read_csv(data_path, encoding='latin-1')
+                except UnicodeDecodeError:
+                    df = pd.read_csv(data_path, encoding='cp1252')
         else:
             df = pd.read_excel(data_path)
         
         # Ensure required columns exist
-        if 'Name' not in df.columns or 'URL' not in df.columns:
-            raise ValueError("Data file must contain 'Name' and 'URL' columns")
+        required_columns = ['Name']
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError("Data file must contain 'Name' column")
         
         successful = 0
         failed = 0
@@ -56,12 +68,11 @@ def batch_add_metadata(data_path, pdf_directory):
         # Process each row
         for index, row in df.iterrows():
             pdf_name = row['Name']
-            url = row['URL']
             
-            # Skip if URL is empty or NaN
-            if pd.isna(url) or str(url).strip() == '':
-                print(f"Skipping {pdf_name} - No URL provided")
-                continue
+            # Get metadata fields, use None if not present
+            url = row.get('URL', None)
+            title = row.get('Title', None)
+            author = row.get('Author', None)
             
             # Search for PDF in all subdirectories
             pdf_path = find_pdf_in_subdirectories(pdf_directory, pdf_name)
@@ -71,14 +82,27 @@ def batch_add_metadata(data_path, pdf_directory):
                 failed += 1
                 continue
             
+            # Skip if no metadata to add
+            if all(x is None or pd.isna(x) or str(x).strip() == '' for x in [url, title, author]):
+                print(f"Skipping {pdf_name} - No metadata provided")
+                continue
+            
+            # Convert empty strings and NaN to None
+            url = None if pd.isna(url) or str(url).strip() == '' else str(url)
+            title = None if pd.isna(title) or str(title).strip() == '' else str(title)
+            author = None if pd.isna(author) or str(author).strip() == '' else str(author)
+            
             # Add metadata
-            if add_pdf_metadata(pdf_path, str(url)):
+            if add_pdf_metadata(pdf_path, url, title, author):
                 successful += 1
-                print(f"Successfully added URL to {pdf_name}")
+                print(f"Successfully added metadata to {pdf_name}")
                 print(f"Location: {pdf_path}")
+                if title: print(f"Title: {title}")
+                if author: print(f"Author: {author}")
+                if url: print(f"URL: {url}")
             else:
                 failed += 1
-                print(f"Failed to add URL to {pdf_name}")
+                print(f"Failed to add metadata to {pdf_name}")
         
         print(f"\nBatch processing complete:")
         print(f"Successfully processed: {successful}")
@@ -90,7 +114,7 @@ def batch_add_metadata(data_path, pdf_directory):
 if __name__ == "__main__":
     # Use relative paths
     base_dir = "storage\data"
-    data_file = os.path.join(base_dir, "Grouped_Data", "URL_METADATA.csv")
+    data_file = os.path.join(base_dir, "Grouped_Data", "METADATA.csv")
     pdf_dir = os.path.join(base_dir, "Grouped_Data", "COMBINED")
     
     print("Starting batch metadata addition...")

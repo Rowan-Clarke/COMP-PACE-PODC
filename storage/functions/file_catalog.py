@@ -10,7 +10,9 @@ def create_file_catalog(root_directory, output_directory=None):
     categories = []
     versions = []
     sizes = []
-    source_urls = []  # New list for URLs
+    source_urls = []
+    titles = []      # New list for titles
+    authors = []     # New list for authors
 
     # Walk through the directory
     for root, dirs, files in os.walk(root_directory):
@@ -45,17 +47,26 @@ def create_file_catalog(root_directory, output_directory=None):
             else:
                 versions.append('UNKNOWN')
 
-            # Get source URL from metadata
+            # Get metadata from PDF
             try:
                 reader = PdfReader(file_path)
                 url = reader.metadata.get('/SourceURL', 'No URL found')
+                title = reader.metadata.get('/Title', 'No title found')
+                author = reader.metadata.get('/Author', 'No author found')
+                
                 source_urls.append(url)
+                titles.append(title)
+                authors.append(author)
             except Exception as e:
                 source_urls.append('Error reading metadata')
+                titles.append('Error reading metadata')
+                authors.append('Error reading metadata')
     
-    # Create DataFrame with six columns
+    # Create DataFrame with eight columns
     df = pd.DataFrame({
         'Name': file_names,
+        'Title': titles,
+        'Author': authors,
         'Date Modified': mod_dates,
         'Category': categories,
         'Version': versions,
