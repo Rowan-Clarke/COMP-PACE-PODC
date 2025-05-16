@@ -258,6 +258,14 @@
     pointer-events: none;
 }
 
+.spin_text{
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: smaller;
+    color: #333333;
+    text-align: center;
+}
+
 .flag-btn {
     background-color: #e3f7fb;
     color: #f86060;
