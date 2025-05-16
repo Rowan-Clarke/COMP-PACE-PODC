@@ -92,8 +92,14 @@ def create_file_catalog(root_directory, output_directory=None):
         print(f"Error creating Excel file: {e}")
 
 if __name__ == "__main__":
-    directory = "storage\data\PDFs\files" # Example directory to scan
-    output_dir = "storage\data\Catalogs"  # Example output directory
+    directory = r"storage\data\PDFs\files"
+    output_dir = r"storage\data\Catalogs"
+
+    # Add directory existence check
+    if not os.path.exists(directory):
+        print(f"Error: Directory not found: {os.path.abspath(directory)}")
+        exit(1)
 
     print("Starting catalog creation...")
+    print(f"Scanning directory: {os.path.abspath(directory)}")
     create_file_catalog(directory, output_dir)
