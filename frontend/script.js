@@ -166,6 +166,21 @@ const header=document.getElementById('header');
         message.appendChild(citationsList);
     }
 
+    document.getElementById('end_chatBtn').onclick=function(){
+        appendMessage('bot',"Are you sure you want to end the conversation? <div><button id=\"end_yesBtn\">Yes</button><button id=\"end_noBtn\">No</button></div>");
+
+        setTimeout(()=>{
+            document.getElementById('end_yesBtn').onclick=()=>{
+                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");
+                
+            };
+            document.getElementById('end_noBtn').onclick=()=>{
+                appendMessage('bot', "No problem, how can I help? :)");
+            };
+        }, 100);
+
+    };
+
     // Flagging feature
     if (
         sender === 'bot' &&

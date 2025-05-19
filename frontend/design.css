@@ -280,6 +280,18 @@
     background-color: #ffc6c6;
 }
 
+.end_chatBtn{
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    color: #028fb9;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
