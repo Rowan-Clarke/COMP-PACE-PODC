@@ -166,16 +166,19 @@ const header=document.getElementById('header');
         message.appendChild(citationsList);
     }
 
+    // end chat feature, asks rating/feedback from user
+
     document.getElementById('end_chatBtn').onclick=function(){
-        appendMessage('bot',"Are you sure you want to end the conversation? <div><button id=\"end_yesBtn\">Yes</button><button id=\"end_noBtn\">No</button></div>");
+        appendMessage('bot',"Are you sure you want to end the conversation? <div><button id=\"end_yesBtn\">Yes</button><button id=\"end_noBtn\">No</button></div>"); // confirmation message
 
         setTimeout(()=>{
-            document.getElementById('end_yesBtn').onclick=()=>{
-                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");
+            // const confirmMsg = document.querySelector('.message.bot:last-child');
+            document.getElementById('end_yesBtn').onclick=()=>{    
+                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
                 
             };
             document.getElementById('end_noBtn').onclick=()=>{
-                appendMessage('bot', "No problem, how can I help? :)");
+                appendMessage('bot', "No problem, how can I help? :)");  // if No is clicked
             };
         }, 100);
 

@@ -282,12 +282,12 @@
 
 .end_chatBtn{
     position: absolute;
-    top: 5px;
+    top: 7px;
     right: 10px;
     background: none;
     color: #028fb9;
     border: none;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
