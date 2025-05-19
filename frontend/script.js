@@ -178,11 +178,14 @@ const header=document.getElementById('header');
             document.getElementById('end_yesBtn').onclick=()=>{    
                 appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
                 end_btn.disabled = false;
-                
+                document.getElementById('end_yesBtn').parentElement.remove();
             };
             document.getElementById('end_noBtn').onclick=()=>{
                 appendMessage('bot', "No problem, how can I help? :)");  // if No is clicked
                 end_btn.disabled = false;
+                document.getElementById('end_noBtn').parentElement.remove();
+
+
             };
         }, 100);
 
