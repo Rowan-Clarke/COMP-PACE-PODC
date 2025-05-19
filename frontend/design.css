@@ -280,6 +280,38 @@
     background-color: #ffc6c6;
 }
 
+.end_chatBtn{
+    position: absolute;
+    top: 7px;
+    right: 10px;
+    background: none;
+    color: #40b2cf;
+    border: none;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#end_yesBtn, #end_noBtn{
+    margin: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#end_yesBtn, #end_noBtn{
+    background-color: #40b2cf;
+    color: white;
+}
+
+#end_yesBtn:hover, #end_noBtn:hover{
+    background-color: #2a8ca1;
+ 
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
