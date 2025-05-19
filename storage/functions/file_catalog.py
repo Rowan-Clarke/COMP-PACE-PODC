@@ -8,11 +8,10 @@ def create_file_catalog(root_directory, output_directory=None):
     file_names = []
     mod_dates = []
     categories = []
-    versions = []
     sizes = []
     source_urls = []
-    titles = []      # New list for titles
-    authors = []     # New list for authors
+    titles = []      
+    authors = []     
 
     # Walk through the directory
     for root, dirs, files in os.walk(root_directory):
@@ -38,14 +37,6 @@ def create_file_catalog(root_directory, output_directory=None):
             # Get file size
             size_kb = round(os.path.getsize(file_path) / 1024, 2)
             sizes.append(size_kb)
-            
-            # Get version
-            if file.endswith('_OLD.pdf'):
-                versions.append('OLD')
-            elif file.endswith('_NEW.pdf'):
-                versions.append('NEW')
-            else:
-                versions.append('UNKNOWN')
 
             # Get metadata from PDF
             try:
@@ -69,7 +60,6 @@ def create_file_catalog(root_directory, output_directory=None):
         'Author': authors,
         'Date Modified': mod_dates,
         'Category': categories,
-        'Version': versions,
         'Size (KB)': sizes,
         'Source URL': source_urls
     })
