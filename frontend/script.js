@@ -178,14 +178,12 @@ const header=document.getElementById('header');
             document.getElementById('end_yesBtn').onclick=()=>{    
                 appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
                 end_btn.disabled = false;
-                document.getElementById('end_yesBtn').parentElement.remove();
+                document.getElementById('end_yesBtn').parentElement.remove();  // removes the buttons after user selects
             };
             document.getElementById('end_noBtn').onclick=()=>{
                 appendMessage('bot', "No problem, how can I help? :)");  // if No is clicked
                 end_btn.disabled = false;
-                document.getElementById('end_noBtn').parentElement.remove();
-
-
+                document.getElementById('end_noBtn').parentElement.remove(); // removes the buttons after user selects
             };
         }, 100);
 
@@ -196,7 +194,10 @@ const header=document.getElementById('header');
         sender === 'bot' &&
         !text.includes("To consent discussing sensitive information") &&
         !text.includes("Thank you for accepting") &&
-        !text.includes("To chat with us, you need to press Accept :)")
+        !text.includes("To chat with us, you need to press Accept :)") && 
+        !text.includes("Are you sure you want to end the conversation?") &&
+        !text.includes("No problem, how can I help? :)") &&
+        !text.includes("Thank you for chatting! Rate your experience with us!")
     ) {
     
         const flagBtn = document.createElement('button');
