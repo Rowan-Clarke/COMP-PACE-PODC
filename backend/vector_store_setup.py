@@ -59,10 +59,12 @@ def get_catalog_metadata(directory):
         for _, row in df.iterrows():
             metadata_dict[row['Name']] = {
                 'filename': row['Name'],
+                'title': row['Title'],
+                'author': row['Author'],
+                'last_modified': row['Date Modified'],
                 'category': row['Category'],
-                'url': row['Source URL'] if row['Source URL'] != 'No URL found' else None,
-                'version': row['Version'],
-                'last_modified': row['Date Modified']
+                'url': row['Source URL'] if row['Source URL'] != 'No URL found' else None
+
             }
         
         return metadata_dict
@@ -102,9 +104,10 @@ def process_files(directory, vector_store_id):
                     file_id=uploaded_file.id,
                     attributes={
                         'filename': metadata['filename'],
+                        'title': metadata['title'],
+                        'author': metadata['author'],
                         'category': metadata['category'],
                         'url': metadata['url'] if metadata['url'] else '',
-                        'version': str(metadata['version']),
                         'last_modified': str(metadata['last_modified'])
                     }
                 )
@@ -123,7 +126,7 @@ def create_vector_store():
     """Create a new vector store"""
     try:
         response = client.vector_stores.create(
-            name="podc_knowledge_base_attributes",
+            name="podc_knowledge_base" + str(datetime.now().strftime('%Y%m%d_%H%M%S'))
         )
         print(f"Created vector store with ID: {response.id}")
         return response.id
@@ -151,8 +154,13 @@ def create_file_batch(vector_store_id, files_with_metadata):
 
 def main():
     # Use absolute path for base directory
-    base_dir = Path(project_root) / "storage\data\Grouped_Data\COMBINED"
+    base_dir = Path(project_root) / "storage" / "data" / "PDFs" / "files"
     base_dir = base_dir.resolve()
+
+    # Directory validation
+    if not base_dir.exists():
+        print(f"Error: Directory not found: {base_dir}")
+        return
     
     print(f"Processing files in: {base_dir}")
     

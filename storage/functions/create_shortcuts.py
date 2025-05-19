@@ -22,9 +22,8 @@ def create_file_copies(source_dir, dest_dir):
                     # Get full source path
                     source_path = os.path.join(root, file)
                     
-                    # Create destination filename - include parent folder for context
-                    parent_folder = os.path.basename(root)
-                    dest_name = f"{parent_folder} - {file}"
+                    # Create destination filename 
+                    dest_name = f"{file}"
                     dest_path = os.path.join(dest_dir, dest_name)
                     
                     # Copy file
