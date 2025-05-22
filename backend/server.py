@@ -75,7 +75,7 @@ def chat():
                 input=user_message,
                 tools=[{
                     "type": "file_search",
-                    "vector_store_ids": vector_store_ids
+                    "vector_store_ids": vector_store_ids[0]
                 }],
                 include=["file_search_call.results"]
             )
@@ -105,7 +105,7 @@ def chat():
                                     # Get file info from vector store instead of regular files
                                     try:
                                         vector_file = client.vector_stores.files.retrieve(
-                                            vector_store_id = ["vs_682b3328e1cc8191ae3c2186a94b18e4"],
+                                            vector_store_id = vector_store_ids,  # Use first ID from the list
                                             file_id=annotation.file_id
                                         )
                                         
