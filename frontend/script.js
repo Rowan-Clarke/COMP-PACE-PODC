@@ -144,20 +144,32 @@ const header=document.getElementById('header');
             const li = document.createElement('li');
             const url = citation.metadata?.url;
             
+            // Get title and author from metadata
+            const title = citation.metadata?.title;
+            const author = citation.metadata?.author;
+            
             // Clean the filename by removing _NEW.pdf and _OLD.pdf
             const cleanedFileName = cleanFileName(citation.filename);
+            
+            // Create display text based on available metadata
+            let displayText;
+            if (title && author) {
+                displayText = `${title} - ${author}`;
+            } else {
+                displayText = cleanedFileName;
+            }
             
             if (url) {
                 const link = document.createElement('a');
                 link.href = url;
                 link.target = '_blank';
                 link.rel = 'noopener noreferrer';
-                link.textContent = cleanedFileName;  // Use cleaned filename
+                link.textContent = displayText;
                 
                 li.textContent = 'Source: ';
                 li.appendChild(link);
             } else {
-                li.textContent = `Source: ${cleanedFileName}`;  // Use cleaned filename
+                li.textContent = `Source: ${displayText}`;
             }
             
             citationsList.appendChild(li);

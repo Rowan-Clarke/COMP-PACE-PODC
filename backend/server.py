@@ -121,6 +121,8 @@ def chat():
                                             'file_id': annotation.file_id,
                                             'metadata': {
                                                 'url': url,
+                                                'title': vector_file.attributes.get('title') if vector_file.attributes else None,
+                                                'author': vector_file.attributes.get('author') if vector_file.attributes else None,
                                                 'category': vector_file.attributes.get('category') if vector_file.attributes else None
                                             }
                                         }
