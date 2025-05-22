@@ -4,13 +4,21 @@ import json
 from dotenv import load_dotenv
 import pandas as pd
 from datetime import datetime
+from get_vector_store_id import get_vector_store_id_from_server
 
 # Load environment variables
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
-def check_vector_store(vector_store_id="vs_681eac93bf088191bd4f7de05e04dbbf"):
+def check_vector_store(vector_store_id=None):
+    # Get vector store ID from server.py if not provided
+    if vector_store_id is None:
+        vector_store_id = get_vector_store_id_from_server()
+        if vector_store_id is None:
+            vector_store_id = "vs_682b3328e1cc8191ae3c2186a94b18e4"  # fallback default
+            print("Warning: Could not read vector store ID from server.py, using default")
+    
     try:
         print(f"\nChecking Vector Store: {vector_store_id}")
         print("=" * 50)
@@ -80,6 +88,7 @@ def check_vector_store(vector_store_id="vs_681eac93bf088191bd4f7de05e04dbbf"):
         # Save to Excel
         df.to_excel(excel_filename, index=False)
         print(f"\nFile data exported to: {excel_filename}")
+        print(f"Absolute path: {os.path.abspath(excel_filename)}")
         
         return df
         
