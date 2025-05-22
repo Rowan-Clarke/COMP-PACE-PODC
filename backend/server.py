@@ -75,7 +75,7 @@ def chat():
                 input=user_message,
                 tools=[{
                     "type": "file_search",
-                    "vector_store_ids": vector_store_ids
+                    "vector_store_ids": "vs_682b3328e1cc8191ae3c2186a94b18e4"
                 }],
                 include=["file_search_call.results"]
             )
