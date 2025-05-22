@@ -2,7 +2,7 @@ from PyPDF2 import PdfReader, PdfWriter
 import os
 import pandas as pd
 
-def add_pdf_metadata(pdf_path, url, title=None, author=None):
+def append_pdf_metadata(pdf_path, url, title=None, author=None):
     """Add source URL, title, and author to PDF metadata."""
     try:
         # Open the PDF
@@ -93,7 +93,7 @@ def batch_add_metadata(data_path, pdf_directory):
             author = None if pd.isna(author) or str(author).strip() == '' else str(author)
             
             # Add metadata
-            if add_pdf_metadata(pdf_path, url, title, author):
+            if append_pdf_metadata(pdf_path, url, title, author):
                 successful += 1
                 print(f"Successfully added metadata to {pdf_name}")
                 print(f"Location: {pdf_path}")
@@ -114,7 +114,7 @@ def batch_add_metadata(data_path, pdf_directory):
 if __name__ == "__main__":
     # Use relative paths
     base_dir = "storage\data"
-    data_file = os.path.join(base_dir, "PDFS", "METADATA.csv")
+    data_file = os.path.join(base_dir, "PDFS", "METADATA_TEST.csv")
     pdf_dir = os.path.join(base_dir, "PDFs", "files")
     
     print("Starting batch metadata addition...")
