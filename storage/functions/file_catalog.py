@@ -82,7 +82,7 @@ def create_file_catalog(root_directory, output_directory=None):
         print(f"Error creating Excel file: {e}")
 
 if __name__ == "__main__":
-    directory = r"storage\data\PDFs\files"
+    directory = r"storage\data\PDFs"
     output_dir = r"storage\data\Catalogs"
 
     # Add directory existence check

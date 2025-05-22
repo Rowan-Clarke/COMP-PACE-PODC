@@ -69,7 +69,7 @@ def generate_metadata_csv(root_directory, output_directory=None):
         })
         
         # Generate output filename
-        output_file = 'metadata_test.csv'
+        output_file = 'metadata.csv'
         
         # If output directory is specified, join it with filename
         if output_directory:
@@ -88,7 +88,7 @@ def generate_metadata_csv(root_directory, output_directory=None):
         print("No PDF files found in the directory.")
 
 if __name__ == "__main__":
-    directory = r"storage\data\PDFs\files"
+    directory = r"storage\data\PDFs"
     output_dir = r"storage\data"
 
     # Add directory existence check
