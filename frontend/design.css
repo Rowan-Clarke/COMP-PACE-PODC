@@ -108,6 +108,11 @@
     min-height: 40px;  /* Make input box taller */
 }
 
+.input_box.locked {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 .input_box button{
     padding: 12px 20px;  /* Adjusted padding */
     background-color: #40b2cf;

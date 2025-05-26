@@ -12,6 +12,7 @@ const header=document.getElementById('header');
  let lastUserMessage = "";  // Track the last thing the user sent
  let hasEnded = false; // Track if the chat has ended
  let lastBotResponse = ''; // Track the last response from the bot
+ let feedbackMode = false; // Track if feedback mode is active
 
  function cleanFileName(filename) {
     return filename
@@ -50,6 +51,7 @@ const header=document.getElementById('header');
  });
  
  function sendMessage(){
+     if (feedbackMode) return;  // Block sending messages during feedback
      const text=input.value.trim();
      if (!text) return;
  
@@ -215,11 +217,13 @@ const header=document.getElementById('header');
                 hasEnded = true;
 
                 // Lock input while feedback window is open
+                feedbackMode = true;
                 input.disabled = true;
                 sendBtn.disabled = true;
                 sendBtn.style.opacity = 0.6;
                 sendBtn.style.cursor = 'not-allowed';
                 input.placeholder = "Chat ended. Please leave your feedback.";
+                document.querySelector('.input_box').classList.add('locked');
 
                 setTimeout(() => {
                     const wrapper = document.createElement('div');
@@ -394,6 +398,7 @@ function resetChat() {
     introMessage = false;
     hasEnded = false;
     userAccepted = false; // Reset consent state
+    feedbackMode = false;
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
 
@@ -403,6 +408,7 @@ function resetChat() {
     sendBtn.style.opacity = 0.6;
     sendBtn.style.cursor = 'not-allowed';
     input.placeholder = "Please accept to start chatting...";
+    document.querySelector('.input_box').classList.remove('locked');
 
     appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n To consent discussing sensitive information, please press Accept. <div><button id=\"accept_bttn\">Accept</button><button id=\"decline_bttn\">Decline</button></div>");
 }
