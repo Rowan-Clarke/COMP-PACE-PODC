@@ -406,6 +406,7 @@ function resetChat() {
     hasEnded = false;
     userAccepted = false; // Reset consent state
     feedbackMode = false;
+    input.value = ''; // Clear unsent input
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
 
