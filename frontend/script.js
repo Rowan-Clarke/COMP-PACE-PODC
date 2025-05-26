@@ -266,6 +266,11 @@ const header=document.getElementById('header');
                         const feedback = document.getElementById('feedback_text').value.trim();
                         const submitBtn = document.getElementById('submit_feedback');
                         submitBtn.disabled = true;
+                        input.disabled = true;
+                        sendBtn.disabled = true;
+                        sendBtn.style.opacity = 0.6;
+                        sendBtn.style.cursor = 'not-allowed';
+                        input.placeholder = "Chat ended. Restart to ask another question.";
 
                         if (!rating) {
                             alert("Please select a rating.");
@@ -357,6 +362,8 @@ const header=document.getElementById('header');
                     // Reset cursor and opacity
                     sendBtn.style.cursor = 'pointer';
                     sendBtn.style.opacity = 1;
+                    
+                    input.placeholder = "Ask a question...";  // placeholder text is reset
 
                     appendMessage('bot', "Thank you for accepting, How can I help? :)")  // thank you message
                     accept.disabled=true;
@@ -382,6 +389,13 @@ function resetChat() {
     userAccepted = false; // Reset consent state
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
+
+    // disable input until user accepts again
+    input.disabled = true;
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = 0.6;
+    sendBtn.style.cursor = 'not-allowed';
+    input.placeholder = "Please accept to start chatting...";
 
     appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n To consent discussing sensitive information, please press Accept. <div><button id=\"accept_bttn\">Accept</button><button id=\"decline_bttn\">Decline</button></div>");
 }
