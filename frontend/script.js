@@ -12,8 +12,6 @@ const header=document.getElementById('header');
  let lastUserMessage = "";  // Track the last thing the user sent
  let hasEnded = false; // Track if the chat has ended
  let lastBotResponse = ''; // Track the last response from the bot
- let chatHistory = []; // Stores short-term memory
- const maxHistoryLength = 4; // 2 user-bot exchanges
  let feedbackMode = false; // Track if feedback mode is active
  let currentFetchController = null; // Track the current fetch request controller
 
@@ -83,10 +81,7 @@ function sendMessage() {
     fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            message: text,
-            history: chatHistory
-        }),
+        body: JSON.stringify({ message: text }),
         signal: signal
     })
     .then(response => {
@@ -102,12 +97,6 @@ function sendMessage() {
 
         if (data.response) {
             appendMessage('bot', data.response, data.citations);
-            chatHistory.push({ role: 'user', message: lastUserMessage });
-            chatHistory.push({ role: 'assistant', message: data.response });
-
-            if (chatHistory.length > maxHistoryLength) {
-                chatHistory = chatHistory.slice(-maxHistoryLength);
-            }
         } else {
             appendMessage('bot', "No response received from server");
         }
@@ -418,7 +407,6 @@ function resetChat() {
     userAccepted = false; // Reset consent state
     feedbackMode = false;
     input.value = ''; // Clear unsent input
-    chatHistory = []; // Clear memory
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
 
