@@ -49,6 +49,7 @@ def chat():
     try:
         data = request.get_json()
         user_message = data.get('message')
+        history = data.get('history', [])
 
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
@@ -61,23 +62,28 @@ def chat():
             print("Testing OpenAI connection...")
             print(f"Using API key (first 4 chars): {api_key[:4]}...")
             
-            response = client.responses.create(
+            response = client.chat.completions.create(
                 model="gpt-4o-mini",
-                instructions = (
-                    "You are the AI assistant for Parents of Deaf Children (PODC). Follow these rules:\n\n"
-                    "1. Use only retrieved PODC documents. Never guess or use prior knowledge.\n"
-                    "2. If unsure, say: 'I don’t know based on the available information. You may consider contacting PODC directly.'\n"
-                    "3. Be clear, kind, and supportive. Avoid jargon. Define terms (e.g., 'NDIS' → 'National Disability Insurance Scheme').\n"
-                    "4. Use bullet points when listing steps or multiple options. Mention the document title if applicable.\n"
-                    "5. Do not fabricate information, sources, or advice.\n"
-                    "6. Reflect before replying: 'Am I using only the retrieved content? Is this clear and kind?'"
-                ),
-                input=user_message,
+                messages=[
+                    {"role": "system", "content":
+                        "You are the AI assistant for Parents of Deaf Children (PODC). Follow these rules:\n\n"
+                        "1. Use only retrieved PODC documents. Never guess or use prior knowledge.\n"
+                        "2. If unsure, say: 'I don’t know based on the available information. You may consider contacting PODC directly.'\n"
+                        "3. Be clear, kind, and supportive. Avoid jargon. Define terms (e.g., 'NDIS' → 'National Disability Insurance Scheme').\n"
+                        "4. Use bullet points when listing steps or multiple options. Mention the document title if applicable.\n"
+                        "5. Do not fabricate information, sources, or advice.\n"
+                        "6. Reflect before replying: 'Am I using only the retrieved content? Is this clear and kind?'"
+                    },
+                    *[{"role": item["role"], "content": item["message"]} for item in history],
+                    {"role": "user", "content": user_message}
+                ],
                 tools=[{
                     "type": "file_search",
                     "vector_store_ids": vector_store_ids
                 }],
-                include=["file_search_call.results"]
+                tool_choice="auto",
+                temperature=0.7,
+                max_tokens=800
             )
             print("OpenAI call successful")
             
@@ -89,51 +95,52 @@ def chat():
             }), 500
 
         # Extract the main response text and citations
-        reply = ""
+        reply = response.choices[0].message.content
         citations = []
 
-        # Process the output items
-        for output in response.output:
-            if output.type == "message":
-                for content in output.content:
-                    if content.type == "output_text":
-                        reply = content.text
-                        # Extract citations from annotations
-                        if hasattr(content, 'annotations'):
-                            for annotation in content.annotations:
-                                if annotation.type == "file_citation":
-                                    # Get file info from vector store instead of regular files
-                                    try:
-                                        vector_file = client.vector_stores.files.retrieve(
-                                            vector_store_id = vector_store_ids[0],  # Use first ID from the list
-                                            file_id=annotation.file_id
-                                        )
-                                        
-                                        # Extract URL from attributes if available
-                                        url = vector_file.attributes.get('url') if vector_file.attributes else None
-                                        
-                                        print(f"File info for {annotation.filename}:")
-                                        print(f"- File ID: {annotation.file_id}")
-                                        print(f"- URL: {url}")
-                                        
-                                        citation = {
-                                            'filename': annotation.filename,
-                                            'file_id': annotation.file_id,
-                                            'metadata': {
-                                                'url': url,
-                                                'title': vector_file.attributes.get('title') if vector_file.attributes else None,
-                                                'author': vector_file.attributes.get('author') if vector_file.attributes else None,
-                                                'category': vector_file.attributes.get('category') if vector_file.attributes else None
-                                            }
-                                        }
-                                        citations.append(citation)
-                                    except Exception as e:
-                                        print(f"Error retrieving file info: {e}")
-                                        citations.append({
-                                            'filename': annotation.filename,
-                                            'file_id': annotation.file_id,
-                                            'metadata': {}
-                                        })
+        # Extract tool call IDs from the assistant's reply (if any)
+        tool_calls = response.choices[0].message.tool_calls or []
+
+        # Get matching tool result from OpenAI response
+        for tool_call in tool_calls:
+            if tool_call.function.name == "file_search":
+                tool_call_id = tool_call.id
+
+                for tool_result in response.tool_results or []:
+                    if tool_result.tool_call_id == tool_call_id:
+                        for file in tool_result.function.output.get("files", []):
+                            try:
+                                file_id = file["id"]
+                                filename = file.get("filename", "unknown")
+
+                                # Fetch file metadata from vector store
+                                vector_file = client.vector_stores.files.retrieve(
+                                    vector_store_id=vector_store_ids[0],
+                                    file_id=file_id
+                                )
+
+                                attributes = vector_file.attributes or {}
+
+                                citation = {
+                                    "filename": filename,
+                                    "file_id": file_id,
+                                    "metadata": {
+                                        "url": attributes.get("url"),
+                                        "title": attributes.get("title"),
+                                        "author": attributes.get("author"),
+                                        "category": attributes.get("category")
+                                    }
+                                }
+
+                                citations.append(citation)
+
+                            except Exception as e:
+                                print(f"[Citation Error] {e}")
+                                citations.append({
+                                    "filename": filename,
+                                    "file_id": file_id,
+                                    "metadata": {}
+                                })
 
         return jsonify({
             'response': reply,
