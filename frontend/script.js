@@ -26,6 +26,7 @@ const header=document.getElementById('header');
  sendBtn.disabled = true;
  sendBtn.style.opacity = 0.6;
  sendBtn.style.cursor = 'not-allowed';
+ input.placeholder = "Please accept to start chatting...";
  
  header.onclick = () => {
      if (body.style.maxHeight && body.style.maxHeight !== "0px") {
