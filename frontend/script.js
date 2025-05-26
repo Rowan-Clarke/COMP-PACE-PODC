@@ -104,6 +104,8 @@ function sendMessage() {
     .catch(error => {
         if (error.name === 'AbortError') {
             console.log('Fetch aborted due to chat end');
+            loading.style.display = 'none'; // Hide spinner
+            input.placeholder = "Chat ended. Please leave your feedback.";
             return;
         }
         console.error('Detailed error:', error.message);
