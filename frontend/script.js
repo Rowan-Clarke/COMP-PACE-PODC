@@ -134,7 +134,7 @@ const header=document.getElementById('header');
         !text.includes("Thank you for chatting!") &&
         !text.includes("To chat with us") &&
         !text.includes("Rate your experience") &&
-        !text.includes("Thanks for visiting!")) {
+        !text.includes("Thanks for visiting")) {
         lastBotResponse = text;
     }
 
