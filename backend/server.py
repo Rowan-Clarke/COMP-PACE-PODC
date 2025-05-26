@@ -79,6 +79,7 @@ def chat():
                 ],
                 tools=[{
                     "type": "file_search",
+                    "function": {},
                     "vector_store_ids": vector_store_ids
                 }],
                 tool_choice="auto",
