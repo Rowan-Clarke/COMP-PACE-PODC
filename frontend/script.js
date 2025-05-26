@@ -214,6 +214,13 @@ const header=document.getElementById('header');
                 document.getElementById('end_chatBtn').textContent = "Restart Chat";
                 hasEnded = true;
 
+                // Lock input while feedback window is open
+                input.disabled = true;
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = 0.6;
+                sendBtn.style.cursor = 'not-allowed';
+                input.placeholder = "Chat ended. Please leave your feedback.";
+
                 setTimeout(() => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'msg bot'; // same style as other bot messages
