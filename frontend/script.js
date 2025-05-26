@@ -219,26 +219,50 @@ const header=document.getElementById('header');
                     wrapper.className = 'msg bot'; // same style as other bot messages
 
                     const feedbackContent = `
-                        <div>Please rate your experience:<br/>
-                        <select id="rating_select">
-                            <option value="">Select</option>
-                            <option value="1">★☆☆☆☆</option>
-                            <option value="2">★★☆☆☆</option>
-                            <option value="3">★★★☆☆</option>
-                            <option value="4">★★★★☆</option>
-                            <option value="5">★★★★★</option>
-                        </select><br/>
-                        <textarea id="feedback_text" placeholder="Leave feedback (optional)" rows="3" style="width:100%; margin-top:10px;"></textarea><br/>
-                        <button id="submit_feedback">Submit Feedback</button>
+                        <div class="feedback-card">
+                            <p>Please rate your experience:</p>
+                            <div id="star_rating" class="star-rating">
+                                <span data-value="1">★</span>
+                                <span data-value="2">★</span>
+                                <span data-value="3">★</span>
+                                <span data-value="4">★</span>
+                                <span data-value="5">★</span>
+                            </div>
+                            <input type="hidden" id="rating_value" value="">
+                            <textarea id="feedback_text" placeholder="Leave feedback (optional)" rows="3"></textarea>
+                            <button id="submit_feedback">Submit Feedback</button>
                         </div>
                     `;
 
                     wrapper.innerHTML = feedbackContent;
                     msg.appendChild(wrapper);
+
+                    const stars = wrapper.querySelectorAll('#star_rating span');
+                    const ratingInput = wrapper.querySelector('#rating_value');
+
+                    stars.forEach(star => {
+                        star.addEventListener('mouseenter', () => {
+                            const val = parseInt(star.dataset.value);
+                            stars.forEach(s => {
+                                s.classList.toggle('hovered', parseInt(s.dataset.value) <= val);
+                            });
+                        });
+                        star.addEventListener('mouseleave', () => {
+                            stars.forEach(s => s.classList.remove('hovered'));
+                        });
+                        star.addEventListener('click', () => {
+                            const val = parseInt(star.dataset.value);
+                            ratingInput.value = val;
+                            stars.forEach(s => {
+                                s.classList.toggle('selected', parseInt(s.dataset.value) <= val);
+                            });
+                        });
+                    });
+
                     msg.scrollTop = msg.scrollHeight;
 
                     document.getElementById('submit_feedback').onclick = () => {
-                        const rating = document.getElementById('rating_select').value;
+                        const rating = document.getElementById('rating_value').value;
                         const feedback = document.getElementById('feedback_text').value.trim();
                         const submitBtn = document.getElementById('submit_feedback');
                         submitBtn.disabled = true;
