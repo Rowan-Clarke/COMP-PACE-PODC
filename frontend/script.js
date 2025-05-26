@@ -353,6 +353,7 @@ function resetChat() {
     lastUserMessage = '';
     introMessage = false;
     hasEnded = false;
+    userAccepted = false; // Reset consent state
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
 
