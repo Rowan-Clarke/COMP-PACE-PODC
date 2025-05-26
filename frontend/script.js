@@ -11,6 +11,7 @@ const header=document.getElementById('header');
  let introMessage=false;  // introduction message from bot
  let lastUserMessage = "";  // Track the last thing the user sent
  let hasEnded = false; // Track if the chat has ended
+ let lastBotResponse = ''; // Track the last response from the bot
 
  function cleanFileName(filename) {
     return filename
@@ -128,6 +129,14 @@ const header=document.getElementById('header');
     const responseText = document.createElement('div');
     responseText.className = 'response-text';
     responseText.innerHTML = marked.parse(text);
+    if (sender === 'bot' &&
+        !text.includes("Are you sure you want to end the conversation?") &&
+        !text.includes("Thank you for chatting!") &&
+        !text.includes("To chat with us") &&
+        !text.includes("Rate your experience")) {
+        lastBotResponse = text;
+    }
+
     message.appendChild(responseText);
 
     // Add citations if they exist
@@ -245,7 +254,7 @@ const header=document.getElementById('header');
                                 rating: parseInt(rating),
                                 feedback: feedback,
                                 user_prompt: lastUserMessage,
-                                response: document.querySelector('.msg.bot:last-child .response-text')?.textContent || '',
+                                response: lastBotResponse,
                                 timestamp: new Date().toISOString()
                             })
                         }).then(() => {
