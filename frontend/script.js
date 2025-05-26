@@ -10,8 +10,8 @@ const header=document.getElementById('header');
  let userAccepted = false; // user consent
  let introMessage=false;  // introduction message from bot
  let lastUserMessage = "";  // Track the last thing the user sent
+ let hasEnded = false; // Track if the chat has ended
 
- // Add this helper function at the top of your script
  function cleanFileName(filename) {
     return filename
         .replace(/_NEW\.pdf$/, '')
@@ -23,7 +23,6 @@ const header=document.getElementById('header');
  sendBtn.disabled = true;
  sendBtn.style.opacity = 0.6;
  sendBtn.style.cursor = 'not-allowed';
-
  
  header.onclick = () => {
      if (body.style.maxHeight && body.style.maxHeight !== "0px") {
@@ -181,6 +180,11 @@ const header=document.getElementById('header');
     // End chat feature, asks rating/feedback from user afterwards.
 
     document.getElementById('end_chatBtn').onclick=function(){
+        if (hasEnded) {
+            resetChat();
+            return;
+        }
+
         const end_btn = this;
         end_btn.disabled = true;
         appendMessage('bot',"Are you sure you want to end the conversation? <div><button id=\"end_yesBtn\">Yes</button><button id=\"end_noBtn\">No</button></div>"); // confirmation message
@@ -188,17 +192,78 @@ const header=document.getElementById('header');
         setTimeout(()=>{
             // const confirmMsg = document.querySelector('.message.bot:last-child');
             document.getElementById('end_yesBtn').onclick=()=>{    
-                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
                 end_btn.disabled = false;
                 document.getElementById('end_yesBtn').parentElement.remove();  // removes the buttons after user selects
+
+                if (!lastUserMessage) {
+                    appendMessage('bot', "Thanks for visiting! Let us know if you have any questions.");
+                    return;
+                }
+                
+                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
+                document.getElementById('end_chatBtn').textContent = "Restart Chat";
+                hasEnded = true;
+
+                setTimeout(() => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'msg bot'; // same style as other bot messages
+
+                    const feedbackContent = `
+                        <div>Please rate your experience:<br/>
+                        <select id="rating_select">
+                            <option value="">Select</option>
+                            <option value="1">★☆☆☆☆</option>
+                            <option value="2">★★☆☆☆</option>
+                            <option value="3">★★★☆☆</option>
+                            <option value="4">★★★★☆</option>
+                            <option value="5">★★★★★</option>
+                        </select><br/>
+                        <textarea id="feedback_text" placeholder="Leave feedback (optional)" rows="3" style="width:100%; margin-top:10px;"></textarea><br/>
+                        <button id="submit_feedback">Submit Feedback</button>
+                        </div>
+                    `;
+
+                    wrapper.innerHTML = feedbackContent;
+                    msg.appendChild(wrapper);
+                    msg.scrollTop = msg.scrollHeight;
+
+                    document.getElementById('submit_feedback').onclick = () => {
+                        const rating = document.getElementById('rating_select').value;
+                        const feedback = document.getElementById('feedback_text').value.trim();
+                        const submitBtn = document.getElementById('submit_feedback');
+                        submitBtn.disabled = true;
+
+                        if (!rating) {
+                            alert("Please select a rating.");
+                            return;
+                        }
+
+                        fetch('https://podc-chatbot-backend-v2.onrender.com/feedback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                rating: parseInt(rating),
+                                feedback: feedback,
+                                user_prompt: lastUserMessage,
+                                response: document.querySelector('.msg.bot:last-child .response-text')?.textContent || '',
+                                timestamp: new Date().toISOString()
+                            })
+                        }).then(() => {
+                            alert('Thanks for your feedback!');
+                            wrapper.remove();
+                        }).catch(() => {
+                            alert('Error submitting feedback. Please try again later.');
+                        });
+                    };
+                }, 300);
             };
+
             document.getElementById('end_noBtn').onclick=()=>{
                 appendMessage('bot', "No problem, how can I help? :)");  // if No is clicked
                 end_btn.disabled = false;
                 document.getElementById('end_noBtn').parentElement.remove(); // removes the buttons after user selects
             };
         }, 100);
-
     };
 
     // Flagging feature
@@ -273,4 +338,16 @@ const header=document.getElementById('header');
         }, 100);
     }
 }
+
+function resetChat() {
+    msg.innerHTML = '';
+    lastUserMessage = '';
+    introMessage = false;
+    hasEnded = false;
+
+    document.getElementById('end_chatBtn').textContent = 'End Chat';
+
+    appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n To consent discussing sensitive information, please press Accept. <div><button id=\"accept_bttn\">Accept</button><button id=\"decline_bttn\">Decline</button></div>");
+}
+
 };

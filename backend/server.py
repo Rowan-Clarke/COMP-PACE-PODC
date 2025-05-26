@@ -215,5 +215,51 @@ def list_flags():
         print(f"Error reading flags from Supabase: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
+@app.route('/feedback', methods=['POST'])
+def collect_feedback():
+    try:
+        data = request.get_json()
+        timestamp = data.get('timestamp')
+        rating = data.get('rating')
+        feedback = data.get('feedback')
+        user_prompt = data.get('user_prompt')
+        response = data.get('response')
+
+        print("\n[FEEDBACK]")
+        print(f"- Rating: {rating}")
+        print(f"- Feedback: {feedback}")
+        print(f"- User Prompt: {user_prompt}")
+        print(f"- Response: {response}")
+
+        headers = {
+            "apikey": SUPABASE_API_KEY,
+            "Authorization": f"Bearer {SUPABASE_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "timestamp": timestamp,
+            "rating": rating,
+            "feedback": feedback,
+            "user_prompt": user_prompt,
+            "response": response
+        }
+
+        response = requests.post(
+            f"{SUPABASE_URL}/rest/v1/chat_feedback",
+            headers=headers,
+            json=payload
+        )
+
+        if response.status_code == 201:
+            return jsonify({"message": "Feedback stored successfully"}), 200
+        else:
+            print("Supabase error:", response.text)
+            return jsonify({"message": "Failed to store feedback"}), 500
+
+    except Exception as e:
+        print(f"Error storing feedback: {e}")
+        return jsonify({"message": "Internal error storing feedback"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
