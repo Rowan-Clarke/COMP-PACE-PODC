@@ -246,7 +246,7 @@ def collect_feedback():
         }
 
         response = requests.post(
-            f"{SUPABASE_URL}/rest/v1/chat_feedback",
+            f"{SUPABASE_URL}/rest/v1/feedback",
             headers=headers,
             json=payload
         )
