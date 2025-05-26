@@ -13,6 +13,7 @@ const header=document.getElementById('header');
  let hasEnded = false; // Track if the chat has ended
  let lastBotResponse = ''; // Track the last response from the bot
  let feedbackMode = false; // Track if feedback mode is active
+ let currentFetchController = null; // Track the current fetch request controller
 
  function cleanFileName(filename) {
     return filename
@@ -50,78 +51,79 @@ const header=document.getElementById('header');
      if (e.key==='Enter' && !input.disabled) sendMessage();   // user presses 'Enter' to send their input as message.
  });
  
- function sendMessage(){
-     if (feedbackMode) return;  // Block sending messages during feedback
-     const text=input.value.trim();
-     if (!text) return;
- 
-     lastUserMessage = text;
-     appendMessage('user', text);  // user's message
-     input.value='';
- 
-     // Update to use Render backend URL
-     // Show loading spinner
-     const loading = document.getElementById('loading');
-     loading.style.display = 'block';
- 
+function sendMessage() {
+    if (feedbackMode || hasEnded) return;  // Block if feedback or chat ended
 
-     // Disable input and send button
-     input.disabled = true;
-     sendBtn.disabled = true;
-     sendBtn.style.opacity = 0.6;
-     sendBtn.style.cursor = 'not-allowed';
-     input.placeholder = "Please wait...";
+    const text = input.value.trim();
+    if (!text) return;
 
-     fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
-         method: 'POST',
-         headers: {
-             'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({ message: text })
-     })
-     .then(response => {
-         if (!response.ok) {
-             throw new Error(`HTTP error! status: ${response.status}`);
-         }
-         return response.json();
-     })
-     .then(data => {
-         loading.style.display = 'none';
-         // Add detailed debug logging
-         console.log('Full response data:', data);
-         console.log('Citations:', data.citations);
-         if (data.citations) {
-             data.citations.forEach(citation => {
-                 console.log('Citation metadata:', {
-                     filename: citation.filename,
-                     url: citation.metadata?.url,
-                     fileId: citation.file_id
-                 });
-             });
-         }
-         console.log('Response data:', data); // Add this debug log
-         if (data.response) {
-             appendMessage('bot', data.response, data.citations);
-         } else {
-             appendMessage('bot', "No response received from server");
-         }
-     })
-     .catch(error => {
-         console.error('Detailed error:', error.message);
-         console.error('Full error object:', error);
-         loading.style.display = 'none';
-         appendMessage('bot', "Sorry, something went wrong. Error: " + error.message);
-     })
-     .finally(() => {
-         // Re-enable input and button
-         input.disabled = false;
-         sendBtn.disabled = false;
-         sendBtn.style.opacity = 1;
-         sendBtn.style.cursor = 'pointer';
-         input.placeholder = "Ask a question...";
-         input.focus();
-     });
- }
+    lastUserMessage = text;
+    appendMessage('user', text);
+    input.value = '';
+
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+
+    input.disabled = true;
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = 0.6;
+    sendBtn.style.cursor = 'not-allowed';
+    input.placeholder = "Please wait...";
+
+    // Abort any previous fetch
+    if (currentFetchController) {
+        currentFetchController.abort();
+    }
+
+    currentFetchController = new AbortController();
+    const signal = currentFetchController.signal;
+
+    fetch('https://podc-chatbot-backend-v2.onrender.com/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+        signal: signal
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (hasEnded) return;  // Prevent response from showing after chat end
+
+        loading.style.display = 'none';
+
+        if (data.response) {
+            appendMessage('bot', data.response, data.citations);
+        } else {
+            appendMessage('bot', "No response received from server");
+        }
+    })
+    .catch(error => {
+        if (error.name === 'AbortError') {
+            console.log('Fetch aborted due to chat end');
+            return;
+        }
+        console.error('Detailed error:', error.message);
+        loading.style.display = 'none';
+        appendMessage('bot', "Sorry, something went wrong. Error: " + error.message);
+    })
+    .finally(() => {
+        currentFetchController = null; // Clean up after fetch completes
+        
+        if (!hasEnded) {
+            input.disabled = false;
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = 1;
+            sendBtn.style.cursor = 'pointer';
+            input.placeholder = "Ask a question...";
+            input.focus();
+        }
+    });
+}
+
  
  function appendMessage(sender, text, citations = []) {
     const message = document.createElement('div');
@@ -195,6 +197,9 @@ const header=document.getElementById('header');
         if (hasEnded) {
             resetChat();
             return;
+        }
+        if (currentFetchController) {
+            currentFetchController.abort();
         }
 
         const end_btn = this;
