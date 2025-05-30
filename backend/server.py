@@ -22,7 +22,11 @@ else:
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)  # Generate a random secret key
+app.secret_key = secrets.token_hex(16)
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(hours=1)  # Set session lifetime
+app.config['SESSION_PERMANENT'] = True
+
 CORS(app, resources={
     r"/*": {
         "origins": [
@@ -33,7 +37,8 @@ CORS(app, resources={
             "https://*.wildapricot.org"
         ],
         "methods": ["GET", "POST"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True  # Add this line
     }
 })
 
@@ -56,12 +61,13 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
-        # Initialize conversation history if it doesn't exist
+        # Initialize or get conversation history
         if 'history' not in session:
             session['history'] = []
-
-        # Get current history
-        history = session['history']
+            print("New conversation started")
+        
+        history = session.get('history', [])
+        print(f"Current history length: {len(history)}")
 
         # Add user message to history
         history.append({
@@ -70,18 +76,15 @@ def chat():
             "timestamp": datetime.datetime.now().isoformat()
         })
 
-        # Limit context window to last 10 messages for performance
-        context_messages = history[-10:]
+        # Build context from history
+        context_messages = history[-10:]  # Last 10 messages
         context = ""
         for turn in context_messages:
             prefix = "User:" if turn["role"] == "user" else "Assistant:"
             context += f"{prefix} {turn['content']}\n"
 
-        # Add debug print
-        print(f"Receieved message: {user_message}")
-        print(f"Current conversation context:")
-        print(context)
-
+        print(f"Context being sent to API: {context}")
+        
         try:
             # Test OpenAI connection
             print("Testing OpenAI connection...")
@@ -163,20 +166,21 @@ def chat():
                                             'metadata': {}
                                         })
 
-        # Update history with assistant's response
+        # After getting the response, update history
         history.append({
             "role": "assistant",
             "content": reply,
             "timestamp": datetime.datetime.now().isoformat()
         })
         
-        # Save updated history back to session
+        # Explicitly save history back to session
         session['history'] = history
+        session.modified = True  # Mark session as modified
         
         return jsonify({
             'response': reply,
             'citations': citations,
-            'history': history  # Optional: return history to client
+            'history': history
         })
 
     except Exception as e:
