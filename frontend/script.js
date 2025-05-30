@@ -338,7 +338,7 @@ function sendMessage() {
         !text.includes("To chat with us, you need to press Accept :)") && 
         !text.includes("Are you sure you want to end the conversation?") &&
         !text.includes("No problem, how can I help? :)") &&
-        !text.includes("Thank you for chatting! Rate your experience with us!") &&
+        !text.includes("Thank you for chatting!") &&
         !text.includes("Thanks for visiting! Let us know if you have any questions.")
     ) {
     
