@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, Response, stream_with_context, session
 from flask_cors import CORS
+from flask_session import Session  # Add this import
 from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
@@ -23,10 +24,21 @@ else:
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(hours=1)  # Set session lifetime
-app.config['SESSION_PERMANENT'] = True
 
+# Session configuration
+app.config.update(
+    SESSION_TYPE='filesystem',
+    SESSION_PERMANENT=True,
+    PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1),
+    SESSION_COOKIE_SECURE=True,  # For HTTPS
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None'  # Required for cross-origin requests
+)
+
+# Initialize Flask-Session
+Session(app)
+
+# Update CORS configuration
 CORS(app, resources={
     r"/*": {
         "origins": [
@@ -36,9 +48,10 @@ CORS(app, resources={
             "https://macquarieuniversity.wildapricot.org/", #Change to PODC domain for integration
             "https://*.wildapricot.org"
         ],
-        "methods": ["GET", "POST"],
+        "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"],
-        "supports_credentials": True  # Add this line
+        "supports_credentials": True,
+        "expose_headers": ["Set-Cookie"]
     }
 })
 
@@ -61,23 +74,22 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
-        # Initialize or get conversation history
-        if 'history' not in session:
-            session['history'] = []
+        # Ensure session exists
+        if not hasattr(session, 'history'):
+            session.history = []
             print("New conversation started")
         
-        history = session.get('history', [])
-        print(f"Current history length: {len(history)}")
+        print(f"Current history length: {len(session.history)}")
 
         # Add user message to history
-        history.append({
+        session.history.append({
             "role": "user",
             "content": user_message,
             "timestamp": datetime.datetime.now().isoformat()
         })
 
         # Build context from history
-        context_messages = history[-10:]  # Last 10 messages
+        context_messages = session.history[-10:]  # Last 10 messages
         context = ""
         for turn in context_messages:
             prefix = "User:" if turn["role"] == "user" else "Assistant:"
@@ -167,20 +179,19 @@ def chat():
                                         })
 
         # After getting the response, update history
-        history.append({
+        session.history.append({
             "role": "assistant",
             "content": reply,
             "timestamp": datetime.datetime.now().isoformat()
         })
         
-        # Explicitly save history back to session
-        session['history'] = history
-        session.modified = True  # Mark session as modified
+        # Ensure session is saved
+        session.modified = True
         
         return jsonify({
             'response': reply,
             'citations': citations,
-            'history': history
+            'history': session.history
         })
 
     except Exception as e:

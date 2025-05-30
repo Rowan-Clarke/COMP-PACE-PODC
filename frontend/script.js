@@ -83,7 +83,8 @@ function sendMessage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
-        signal: signal
+        signal: signal,
+        credentials: 'include'  // Add this line
     })
     .then(response => {
         if (!response.ok) {
@@ -305,7 +306,8 @@ function sendMessage() {
                                 user_prompt: lastUserMessage,
                                 response: lastBotResponse,
                                 timestamp: new Date().toISOString()
-                            })
+                            }),
+                            credentials: 'include'  // Add this line
                         }).then(() => {
                             alert('Thanks for your feedback!');
                             wrapper.remove();
@@ -353,7 +355,8 @@ function sendMessage() {
                     flaggedText: text,
                     userPrompt: lastUserMessage,
                     timestamp: new Date().toISOString()
-                })
+                }),
+                credentials: 'include'  // Add this line
             }).then(() => {
                 alert('Thanks for flagging. The team will review this response.');
             }).catch(() => {
