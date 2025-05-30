@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, Response, stream_with_context
+from flask import Flask, request, jsonify, Response, stream_with_context, session
 from flask_cors import CORS
 from openai import OpenAI
 import os
 from dotenv import load_dotenv, find_dotenv
 import json
 import requests
+import datetime
 
 SUPABASE_URL = "https://jqcnepfjbcpgsulzbfna.supabase.co"
 SUPABASE_API_KEY = os.environ.get("SUPABASE_API_KEY")
@@ -20,6 +21,7 @@ else:
 
 # Initialize Flask app
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")  # Add a secret key for sessions
 CORS(app, resources={
     r"/*": {
         "origins": [
@@ -53,8 +55,31 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
+        # Initialize conversation history if it doesn't exist
+        if 'history' not in session:
+            session['history'] = []
+
+        # Get current history
+        history = session['history']
+
+        # Add user message to history
+        history.append({
+            "role": "user",
+            "content": user_message,
+            "timestamp": datetime.datetime.now().isoformat()
+        })
+
+        # Limit context window to last 10 messages for performance
+        context_messages = history[-10:]
+        context = ""
+        for turn in context_messages:
+            prefix = "User:" if turn["role"] == "user" else "Assistant:"
+            context += f"{prefix} {turn['content']}\n"
+
         # Add debug print
-        print(f"Received message: {user_message}")
+        print(f"Receieved message: {user_message}")
+        print(f"Current conversation context:")
+        print(context)
 
         try:
             # Test OpenAI connection
@@ -73,7 +98,8 @@ def chat():
                     "6. Reflect before replying: 'Am I using only the retrieved content? Is this clear and kind?'\n"
                     "7. Never say 'documents you uploaded' or imply the user provided the information. Instead, say: 'Based on official PODC materials' or 'According to our knowledge base'."
                 ),
-                input=user_message,
+                # input=user_message.
+                input=context,
                 tools=[{
                     "type": "file_search",
                     "vector_store_ids": vector_store_ids
@@ -81,7 +107,7 @@ def chat():
                 include=["file_search_call.results"]
             )
             print("OpenAI call successful")
-            
+
         except Exception as openai_error:
             print(f"OpenAI API Error: {str(openai_error)}")
             return jsonify({
@@ -136,9 +162,20 @@ def chat():
                                             'metadata': {}
                                         })
 
+        # Update history with assistant's response
+        history.append({
+            "role": "assistant",
+            "content": reply,
+            "timestamp": datetime.datetime.now().isoformat()
+        })
+        
+        # Save updated history back to session
+        session['history'] = history
+        
         return jsonify({
             'response': reply,
-            'citations': citations
+            'citations': citations,
+            'history': history  # Optional: return history to client
         })
 
     except Exception as e:
@@ -261,6 +298,47 @@ def collect_feedback():
     except Exception as e:
         print(f"Error storing feedback: {e}")
         return jsonify({"message": "Internal error storing feedback"}), 500
+
+@app.route('/end_chat', methods=['POST'])
+def end_chat():
+    """End the chat session and store the conversation history if needed"""
+    try:
+        # Get the final conversation history
+        final_history = session.get('history', [])
+        
+        # You could store the conversation history in Supabase here if needed
+        if final_history:
+            headers = {
+                "apikey": SUPABASE_API_KEY,
+                "Authorization": f"Bearer {SUPABASE_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "conversation_history": final_history,
+                "ended_at": datetime.datetime.now().isoformat()
+            }
+            
+            # Store in Supabase (optional)
+            requests.post(
+                f"{SUPABASE_URL}/rest/v1/conversations",
+                headers=headers,
+                json=payload
+            )
+        
+        # Clear the session
+        session.clear()
+        return jsonify({
+            "message": "Chat session ended and memory cleared.",
+            "status": "success"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error ending chat session: {e}")
+        return jsonify({
+            "message": "Error ending chat session",
+            "status": "error"
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
