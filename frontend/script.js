@@ -124,6 +124,10 @@ function sendMessage() {
             sendBtn.style.cursor = 'pointer';
             input.placeholder = "Ask a question...";
             input.focus();
+            const endChatBtn = document.getElementById('end_chatBtn');
+            if (endChatBtn.style.display === 'none') {
+                endChatBtn.style.display = 'inline';
+            }
         }
     });
 }
@@ -221,7 +225,7 @@ function sendMessage() {
                     return;
                 }
                 
-                appendMessage('bot',"Thank you for chatting! Rate your experience with us!");  // if Yes is clicked
+                appendMessage('bot',"Thank you for chatting!");  // if Yes is clicked
                 document.getElementById('end_chatBtn').textContent = "Restart Chat";
                 hasEnded = true;
 
@@ -231,7 +235,7 @@ function sendMessage() {
                 sendBtn.disabled = true;
                 sendBtn.style.opacity = 0.6;
                 sendBtn.style.cursor = 'not-allowed';
-                input.placeholder = "Chat ended. Please leave your feedback.";
+                input.placeholder = "Chat ended.";
                 document.querySelector('.input_box').classList.add('locked');
 
                 setTimeout(() => {
@@ -413,6 +417,9 @@ function resetChat() {
     input.value = ''; // Clear unsent input
 
     document.getElementById('end_chatBtn').textContent = 'End Chat';
+
+    // Hide the End Chat button again
+    document.getElementById('end_chatBtn').style.display = 'none';
 
     // disable input until user accepts again
     input.disabled = true;
