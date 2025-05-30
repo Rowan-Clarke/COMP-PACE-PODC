@@ -6,6 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 import json
 import requests
 import datetime
+import secrets
 
 SUPABASE_URL = "https://jqcnepfjbcpgsulzbfna.supabase.co"
 SUPABASE_API_KEY = os.environ.get("SUPABASE_API_KEY")
@@ -21,7 +22,7 @@ else:
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY")  # Add a secret key for sessions
+app.secret_key = secrets.token_hex(16)  # Generate a random secret key
 CORS(app, resources={
     r"/*": {
         "origins": [
