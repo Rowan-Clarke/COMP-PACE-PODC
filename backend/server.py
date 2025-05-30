@@ -74,9 +74,13 @@ def chat():
         if not user_message:
             return jsonify({'response': 'No message received'}), 400
 
-        # Ensure session exists
+        # Ensure session exists and initialize with system message if new
         if not hasattr(session, 'history'):
-            session.history = []
+            session.history = [{
+                "role": "system",
+                "content": "You are a helpful AI assistant for PODC. Remember user details and context from previous messages.",
+                "timestamp": datetime.datetime.now().isoformat()
+            }]
             print("New conversation started")
         
         print(f"Current history length: {len(session.history)}")
@@ -88,12 +92,16 @@ def chat():
             "timestamp": datetime.datetime.now().isoformat()
         })
 
-        # Build context from history
+        # Build context from history with role-based formatting
         context_messages = session.history[-10:]  # Last 10 messages
         context = ""
-        for turn in context_messages:
-            prefix = "User:" if turn["role"] == "user" else "Assistant:"
-            context += f"{prefix} {turn['content']}\n"
+        for msg in context_messages:
+            if msg["role"] == "system":
+                context += f"System instruction: {msg['content']}\n"
+            elif msg["role"] == "user":
+                context += f"User: {msg['content']}\n"
+            else:
+                context += f"Assistant: {msg['content']}\n"
 
         print(f"Context being sent to API: {context}")
         
@@ -106,18 +114,18 @@ def chat():
                 model="gpt-4o-mini",
                 instructions = (
                     "You are the AI assistant for Parents of Deaf Children (PODC). Follow these rules:\n\n"
-                    "1. Use only information retrieved from the PODC Knowledge Base. Do not refer to them as 'uploaded documents'.\n"
-                    "2. If unsure, say: 'I don't know based on the available information. You may consider contacting PODC directly.'\n"
-                    "3. Be clear, kind, and supportive. Avoid jargon. Define terms (e.g., 'NDIS' → 'National Disability Insurance Scheme').\n"
-                    "4. Use bullet points when listing steps or multiple options. Mention the document title if applicable.\n"
-                    "5. Do not fabricate information, sources, or advice.\n"
-                    "6. Reflect before replying: 'Am I using only the retrieved content? Is this clear and kind?'\n"
-                    "7. Never say 'documents you uploaded' or imply the user provided the information. Instead, say: 'Based on official PODC materials' or 'According to our knowledge base'.\n"
-                    "8. Remember the conversation context. Reference previous messages when relevant.\n"
-                    "9. Maintain a consistent persona throughout the conversation.\n\n"
-                    f"Previous conversation context:\n{context}\n"  # Add conversation context here
+                    "1. Use only information retrieved from the PODC Knowledge Base.\n"
+                    "2. If unsure, say: 'I don't know based on the available information.'\n"
+                    "3. Be clear, kind, and supportive. Avoid jargon.\n"
+                    "4. Use bullet points for lists.\n"
+                    "5. Do not fabricate information.\n"
+                    "6. Remember user details from previous messages (names, preferences, etc).\n"
+                    "7. Reference previous conversations when relevant.\n"
+                    "8. If the user has shared their name, use it appropriately.\n"
+                    "9. Maintain a warm, consistent persona.\n\n"
+                    f"Conversation history:\n{context}\n"
                 ),
-                input=user_message,  # Change this from context to user_message
+                input=user_message,
                 tools=[{
                     "type": "file_search",
                     "vector_store_ids": vector_store_ids
