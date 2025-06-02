@@ -253,7 +253,7 @@ function sendMessage() {
                                 <span data-value="5">★</span>
                             </div>
                             <input type="hidden" id="rating_value" value="">
-                            <textarea id="feedback_text" placeholder="Leave feedback (optional)" rows="3"></textarea>
+                            <textarea id="feedback_text" placeholder="Leave feedback (Optional)" rows="2"></textarea>
                             <button id="submit_feedback">Submit Feedback</button>
                         </div>
                     `;
