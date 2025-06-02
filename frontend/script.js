@@ -21,25 +21,6 @@ const header=document.getElementById('header');
         .replace(/_OLD\.pdf$/, '');
  }
 
-function appendMessage(sender, text, citations = null) {
-    const messages = document.getElementById('messages');
-    const messageContainer = document.createElement('div');
-
-    if (sender === 'bot') {
-        messageContainer.className = 'bot-container';
-        messageContainer.innerHTML = `
-            <div class="bot-dot"></div>
-            <div class="msg bot">${marked.parse(text)}</div>
-        `;
-    } else {
-        messageContainer.className = 'message user';
-        messageContainer.innerHTML = `<div class="msg user">${text}</div>`;
-    }
-
-    messages.appendChild(messageContainer);
-    messages.scrollTop = messages.scrollHeight;
-}
-
 
  // Disable chat input and send button until user accepts the consent form
  input.disabled = true;
