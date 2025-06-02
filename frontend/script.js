@@ -21,6 +21,26 @@ const header=document.getElementById('header');
         .replace(/_OLD\.pdf$/, '');
  }
 
+function appendMessage(sender, text, citations = null) {
+    const messages = document.getElementById('messages');
+    const messageContainer = document.createElement('div');
+
+    if (sender === 'bot') {
+        messageContainer.className = 'bot-container';
+        messageContainer.innerHTML = `
+            <div class="bot-dot"></div>
+            <div class="msg bot">${marked.parse(text)}</div>
+        `;
+    } else {
+        messageContainer.className = 'message user';
+        messageContainer.innerHTML = `<div class="msg user">${text}</div>`;
+    }
+
+    messages.appendChild(messageContainer);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+
  // Disable chat input and send button until user accepts the consent form
  input.disabled = true;
  sendBtn.disabled = true;
@@ -226,6 +246,8 @@ function sendMessage() {
                 }
                 
                 appendMessage('bot',"Thank you for chatting!");  // if Yes is clicked
+
+
                 document.getElementById('end_chatBtn').textContent = "Restart Chat";
                 hasEnded = true;
 
@@ -426,7 +448,7 @@ function resetChat() {
     sendBtn.disabled = true;
     sendBtn.style.opacity = 0.6;
     sendBtn.style.cursor = 'not-allowed';
-    input.placeholder = "Please accept to start chatting...";
+    input.placeholder = "Please press accept to start chatting...";
     document.querySelector('.input_box').classList.remove('locked');
 
     appendMessage('bot', "Hi! I'm the PODC Assistant! Ask any question about hearing or hearing loss below, I'll be happy to help :) \n To consent discussing sensitive information, please press Accept. <div><button id=\"accept_bttn\">Accept</button><button id=\"decline_bttn\">Decline</button></div>");
