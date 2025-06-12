@@ -1,0 +1,28 @@
+<!-- Chatbot Dependencies -->
+<link rel="stylesheet" href="https://macquarieuniversity.wildapricot.org/resources/design.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+
+<!-- Chatbot Container -->
+<div id="chat_container" class="chatbot_design">
+    <div id="header" class="chat_header">
+        <span>Ask PODC</span>
+        <span id="arrow" style="margin-right: 10px;">▲</span>
+    </div>
+    <div id="chat_body" class="chat_body">
+        <div id="messages" class="message_bubble"></div>
+        <div id="loading" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <div class="spin_text">
+                <span class="dot-flash">Thinking<span>.</span><span>.</span><span>.</span></span>
+            </div>
+        </div>
+        <button id="end_chatBtn" class="end_chatBtn" style="display: none;">End Chat</button>
+        <div class="input_box">
+            <input id="chat_input" type="text" placeholder="Ask a question...">
+            <button id="send_btn">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot Script -->
+<script src="https://macquarieuniversity.wildapricot.org/resources/script.js"></script>
